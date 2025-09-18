@@ -32,9 +32,9 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export const Sidebar: React.FC = () => {
 	const { data: activeOrganization } = authClient.useActiveOrganization();
-	const { data: session } = authClient.useSession();
 	const { data: organizations } = authClient.useListOrganizations();
 
+	const { data: session } = authClient.useSession();
 	const user = session?.user;
 	const router = useRouter();
 	const pathname = usePathname();
