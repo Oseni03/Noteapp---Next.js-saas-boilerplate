@@ -10,16 +10,25 @@ import {
 	Building2,
 	Crown,
 	ChevronDown,
+	UserCircle,
+	CreditCard,
+	LogOut,
+	MoreVertical,
 } from "lucide-react";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuGroup,
 	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { usePathname, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export const Sidebar: React.FC = () => {
 	const { data: activeOrganization } = authClient.useActiveOrganization();
@@ -29,6 +38,7 @@ export const Sidebar: React.FC = () => {
 	const user = session?.user;
 	const router = useRouter();
 	const pathname = usePathname();
+	const isMobile = useIsMobile();
 
 	const getSubscriptionColor = (subscription: string) => {
 		switch (subscription) {
@@ -57,6 +67,18 @@ export const Sidebar: React.FC = () => {
 		} catch (error) {
 			console.error(error);
 			toast.error("Failed to switch organization");
+		}
+	};
+
+	const handleSignOut = async () => {
+		try {
+			toast.loading("Signing out");
+			authClient.signOut();
+			toast.success("Signed out");
+			router.push("/");
+		} catch (error) {
+			console.log("Error signing out: ", error);
+			toast.error("Error signing out");
 		}
 	};
 
@@ -166,29 +188,106 @@ export const Sidebar: React.FC = () => {
 
 			{/* User Info */}
 			<div className="p-4 border-t border-border">
-				<div className="flex items-center gap-3">
-					<div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-						<span className="text-sm font-medium text-primary-foreground">
-							{user?.name.charAt(0)}
-						</span>
-					</div>
-					<div className="flex-1 min-w-0">
-						<div className="font-medium text-sm truncate">
-							{user?.name}
-						</div>
-						<div className="text-xs text-muted-foreground truncate">
-							{user?.email}
-						</div>
-					</div>
-					<Badge
-						variant={
-							user?.role === "admin" ? "default" : "secondary"
-						}
-						className="text-xs"
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							size="lg"
+							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+						>
+							<Avatar className="h-8 w-8 rounded-lg grayscale">
+								<AvatarImage
+									src={user?.image || ""}
+									alt={user?.name}
+								/>
+								<AvatarFallback className="rounded-lg">
+									CN
+								</AvatarFallback>
+							</Avatar>
+							<div className="grid flex-1 text-left text-sm leading-tight">
+								<span className="truncate font-medium">
+									{user?.name}
+								</span>
+								<Badge
+									variant={
+										user?.role === "admin"
+											? "default"
+											: "secondary"
+									}
+									className="text-xs"
+								>
+									{user?.role}
+								</Badge>
+							</div>
+							<MoreVertical className="ml-auto size-4" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent
+						className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+						side={isMobile ? "bottom" : "right"}
+						align="end"
+						sideOffset={4}
 					>
-						{user?.role}
-					</Badge>
-				</div>
+						<DropdownMenuLabel className="p-0 font-normal">
+							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+								<Avatar className="h-8 w-8 rounded-lg">
+									<AvatarImage
+										src={user?.image || ""}
+										alt={user?.name}
+									/>
+									<AvatarFallback className="rounded-lg">
+										CN
+									</AvatarFallback>
+								</Avatar>
+								<div className="grid flex-1 text-left text-sm leading-tight">
+									<span className="truncate font-medium">
+										{user?.name}
+									</span>
+									<Badge
+										variant={
+											user?.role === "admin"
+												? "default"
+												: "secondary"
+										}
+										className="text-xs"
+									>
+										{user?.role}
+									</Badge>
+								</div>
+							</div>
+						</DropdownMenuLabel>
+						{user?.role === "admin" && (
+							<>
+								<DropdownMenuSeparator />
+								<DropdownMenuGroup>
+									<DropdownMenuItem
+										onClick={() =>
+											router.push("/dashboard/settings")
+										}
+									>
+										<UserCircle />
+										Settings
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() =>
+											router.push(
+												"/dashboard/subscription"
+											)
+										}
+									>
+										<CreditCard />
+										Subscription
+									</DropdownMenuItem>
+								</DropdownMenuGroup>
+								<DropdownMenuSeparator />
+							</>
+						)}
+
+						<DropdownMenuItem onClick={handleSignOut}>
+							<LogOut />
+							Log out
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 		</div>
 	);

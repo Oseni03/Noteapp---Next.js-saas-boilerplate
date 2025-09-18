@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { customSession, organization } from "better-auth/plugins";
-import { admin, member, owner } from "./auth/permissions";
+import { admin, member } from "./auth/permissions";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { getActiveOrganization } from "@/server/organizations";
@@ -19,13 +19,13 @@ export const auth = betterAuth({
 	}),
 	plugins: [
 		organization({
+			creatorRole: "admin",
 			async sendInvitationEmail(data) {
 				const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/api/accept-invitation/${data.id}`;
 
 				console.log("Invite link:", inviteLink);
 			},
 			roles: {
-				owner,
 				admin,
 				member,
 			},

@@ -4,29 +4,31 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 export const isAdmin = async () => {
-    try {
-        const { success, error } = await auth.api.hasPermission({
-            headers: await headers(),
-            body: {
-                permissions: {
-                    organization: ["update", "delete"]
-                }
-            }
-        });
+	try {
+		const { success, error } = await auth.api.hasPermission({
+			headers: await headers(),
+			body: {
+				permissions: {
+					notes: ["create", "update", "delete"],
+					organization: ["update", "delete"],
+					invitation: ["create", "cancel"],
+				},
+			},
+		});
 
-        if (error) {
-            return {
-                success: false,
-                error: error || "Failed to check permissions"
-            }
-        }
+		if (error) {
+			return {
+				success: false,
+				error: error || "Failed to check permissions",
+			};
+		}
 
-        return success
-    } catch (error) {
-        console.error(error);
-        return {
-            success: false,
-            error: error || "Failed to check permissions"
-        }
-    }
+		return success;
+	} catch (error) {
+		console.error(error);
+		return {
+			success: false,
+			error: error || "Failed to check permissions",
+		};
+	}
 };
