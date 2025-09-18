@@ -24,7 +24,7 @@ export interface Note {
 	title: string;
 	content: string;
 	authorId: string;
-	tenantId: string;
+	organizationId: string;
 	tags: string[];
 	isPublic: boolean;
 	createdAt: Date;

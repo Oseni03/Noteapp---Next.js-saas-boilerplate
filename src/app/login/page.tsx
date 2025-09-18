@@ -12,18 +12,30 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import Link from "next/link";
-import { FileText, ArrowLeft } from "lucide-react";
+import { FileText, ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { signIn } from "@/server/users";
 
 const Login = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
+	const [loading, setIsLoading] = useState(false);
 	const router = useRouter();
 
-	const handleSubmit = (e: React.FormEvent) => {
-		e.preventDefault();
-		// Simulate login - in real app, this would call an API
-		router.push("/dashboard");
+	const handleSubmit = async (e: React.FormEvent) => {
+		setIsLoading(true);
+
+		const { success, message } = await signIn(email, password);
+
+		if (success) {
+			toast.success(message as string);
+			router.push("/dashboard");
+		} else {
+			toast.error(message as string);
+		}
+
+		setIsLoading(false);
 	};
 
 	return (
@@ -80,16 +92,15 @@ const Login = () => {
 									required
 								/>
 							</div>
-							<div className="flex items-center justify-between text-sm">
-								<Link
-									href="#"
-									className="text-primary hover:underline"
-								>
-									Forgot password?
-								</Link>
-							</div>
-							<Button type="submit" className="w-full">
-								Sign In
+							<Button
+								type="submit"
+								className="w-full"
+								disabled={loading}
+							>
+								Sign In{" "}
+								{loading && (
+									<Loader2 className="size-4 animate-spin" />
+								)}
 							</Button>
 						</form>
 					</CardContent>
@@ -157,7 +168,7 @@ const Login = () => {
 				{/* Sign up link */}
 				<div className="text-center text-sm">
 					<span className="text-muted-foreground">
-						Don't have an account?{" "}
+						Don&rsquo;t have an account?{" "}
 					</span>
 					<Link
 						href="/signup"

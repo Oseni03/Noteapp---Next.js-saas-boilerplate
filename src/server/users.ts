@@ -87,7 +87,7 @@ export const getUsers = async (organizationId: string) => {
 
 		const users = await prisma.user.findMany({
 			where: {
-				id: { not: members.map((member) => member.userId) },
+				id: { notIn: members.map((member) => member.userId) },
 			},
 		});
 

@@ -15,8 +15,10 @@ export async function getOrganizations() {
 	const organizations = await prisma.organization.findMany({
 		where: {
 			members: {
-				id: {
-					in: members.map((member) => member.id),
+				some: {
+					id: {
+						in: members.map((member) => member.id),
+					},
 				},
 			},
 		},
@@ -40,7 +42,7 @@ export async function getActiveOrganization(userId: string) {
 		where: { id: memberUser.organizationId },
 	});
 
-	return activeOrganization;
+	return { ...activeOrganization, role: memberUser.role };
 }
 
 export async function getOrganizationBySlug(slug: string) {

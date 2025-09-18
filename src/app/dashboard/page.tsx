@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { useAppContext } from "@/contexts/app-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -18,17 +17,15 @@ import { Switch } from "@/components/ui/switch";
 import { Plus, Search, Edit, Trash2, Tag, Calendar, User } from "lucide-react";
 import { Note } from "@/types";
 import { format } from "date-fns";
+import { authClient } from "@/lib/auth-client";
 
 const Page = () => {
-	const {
-		notes,
-		currentTenant,
-		currentUser,
-		users,
-		addNote,
-		updateNote,
-		deleteNote,
-	} = useAppContext();
+	const { data: activeOrganization } = authClient.useActiveOrganization();
+	const { data: session } = authClient.useSession();
+
+	const user = session?.user;
+	const members = activeOrganization?.members;
+	const [notes] = useState<Note[]>([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [editingNote, setEditingNote] = useState<Note | null>(null);
@@ -40,8 +37,10 @@ const Page = () => {
 	});
 
 	const tenantNotes = useMemo(() => {
-		return notes.filter((note) => note.tenantId === currentTenant?.id);
-	}, [notes, currentTenant?.id]);
+		return notes.filter(
+			(note) => note.organizationId === activeOrganization?.id
+		);
+	}, [notes, activeOrganization?.id]);
 
 	const filteredNotes = useMemo(() => {
 		return tenantNotes.filter(
@@ -55,13 +54,13 @@ const Page = () => {
 	}, [tenantNotes, searchTerm]);
 
 	const handleCreateNote = () => {
-		if (!currentUser || !currentTenant) return;
+		if (!user || !activeOrganization) return;
 
 		addNote({
 			title: newNote.title || "Untitled Note",
 			content: newNote.content,
-			authorId: currentUser.id,
-			tenantId: currentTenant.id,
+			authorId: user.id,
+			organizationId: activeOrganization.id,
 			tags: newNote.tags
 				? newNote.tags.split(",").map((tag) => tag.trim())
 				: [],
@@ -99,17 +98,18 @@ const Page = () => {
 	};
 
 	const getAuthorName = (authorId: string) => {
-		return users.find((user) => user.id === authorId)?.name || "Unknown";
-	};
-
-	const canEditNote = (note: Note) => {
 		return (
-			currentUser?.role === "admin" || note.authorId === currentUser?.id
+			members?.find((member) => member.id === authorId)?.user.name ||
+			"Unknown"
 		);
 	};
 
+	const canEditNote = (note: Note) => {
+		return user?.role === "admin" || note.authorId === user?.id;
+	};
+
 	const hasReachedLimit = () => {
-		return tenantNotes.length >= (currentTenant?.maxNotes || 0);
+		return tenantNotes.length >= (activeOrganization?.maxNotes || 0);
 	};
 
 	return (
@@ -121,8 +121,8 @@ const Page = () => {
 						Notes
 					</h1>
 					<p className="text-muted-foreground">
-						{tenantNotes.length} of {currentTenant?.maxNotes} notes
-						used
+						{tenantNotes.length} of {activeOrganization?.maxNotes}{" "}
+						notes used
 					</p>
 				</div>
 				<Button

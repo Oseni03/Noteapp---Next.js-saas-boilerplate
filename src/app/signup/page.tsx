@@ -20,9 +20,12 @@ import {
 	Building2,
 	Zap,
 	Crown,
+	Loader2,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { signUp } from "@/server/users";
 
 const Signup = () => {
 	const [formData, setFormData] = useState({
@@ -33,6 +36,7 @@ const Signup = () => {
 		agreeTerms: false,
 	});
 	const [selectedPlan, setSelectedPlan] = useState("pro");
+	const [loading, setIsLoading] = useState(false);
 	const router = useRouter();
 
 	const plans = [
@@ -68,10 +72,26 @@ const Signup = () => {
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleSubmit = (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		// Simulate signup - in real app, this would call an API
-		router.push("/dashboard");
+		setIsLoading(true);
+
+		const { success, message } = await signUp(
+			formData.email,
+			formData.password,
+			formData.name
+		);
+
+		if (success) {
+			toast.success(
+				`${message as string} Please check your email for verification.`
+			);
+			router.push("/dashboard");
+		} else {
+			toast.error(message as string);
+		}
+
+		setIsLoading(false);
 	};
 
 	return (
@@ -290,9 +310,14 @@ const Signup = () => {
 									<Button
 										type="submit"
 										className="w-full"
-										disabled={!formData.agreeTerms}
+										disabled={
+											!formData.agreeTerms || loading
+										}
 									>
-										Start Free Trial
+										Start Free Trial{" "}
+										{loading && (
+											<Loader2 className="size-4 animate-spin" />
+										)}
 									</Button>
 								</form>
 							</CardContent>

@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
-import { organization } from "better-auth/plugins";
+import { customSession, organization } from "better-auth/plugins";
 import { admin, member, owner } from "./auth/permissions";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
@@ -37,6 +37,7 @@ export const auth = betterAuth({
 						data: {
 							...session,
 							activeOrganizationId: organization?.id,
+							role: organization?.role,
 						},
 					};
 				},
@@ -60,5 +61,15 @@ export const auth = betterAuth({
 			},
 		}),
 		nextCookies(),
+		customSession(async ({ user, session }) => {
+			const organization = await getActiveOrganization(session.userId);
+			return {
+				user: {
+					...user,
+					role: organization?.role,
+				},
+				session,
+			};
+		}),
 	],
 });

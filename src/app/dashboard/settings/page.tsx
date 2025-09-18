@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { useAppContext } from "@/contexts/app-context";
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,11 +15,18 @@ import {
 	Zap,
 } from "lucide-react";
 import { format } from "date-fns";
+import { authClient } from "@/lib/auth-client";
+import { Note } from "@/types";
 
 const Page = () => {
-	const { currentTenant, currentUser, users, notes } = useAppContext();
+	const { data: activeOrganization } = authClient.useActiveOrganization();
+	const { data: session } = authClient.useSession();
+	const [notes] = useState<Note[]>([]);
 
-	if (currentUser?.role !== "admin") {
+	const user = session?.user;
+	const members = activeOrganization?.members;
+
+	if (user?.role !== "admin") {
 		return (
 			<div className="p-6">
 				<div className="text-center py-12">
@@ -36,11 +42,8 @@ const Page = () => {
 		);
 	}
 
-	const tenantUsers = users.filter(
-		(user) => user.tenantId === currentTenant?.id
-	);
 	const tenantNotes = notes.filter(
-		(note) => note.tenantId === currentTenant?.id
+		(note) => note.organizationId === activeOrganization?.id
 	);
 
 	const getSubscriptionIcon = (subscription: string) => {
@@ -107,25 +110,25 @@ const Page = () => {
 								Name
 							</label>
 							<div className="text-lg font-medium">
-								{currentTenant?.name}
+								{activeOrganization?.name}
 							</div>
 						</div>
 						<div>
 							<label className="text-sm font-medium text-muted-foreground">
 								Domain
 							</label>
-							<div className="text-lg font-medium">
-								{currentTenant?.domain}
-							</div>
+							{/* <div className="text-lg font-medium">
+								{activeOrganization?.domain}
+							</div> */}
 						</div>
 						<div>
 							<label className="text-sm font-medium text-muted-foreground">
 								Created
 							</label>
 							<div className="text-lg font-medium">
-								{currentTenant &&
+								{activeOrganization &&
 									format(
-										currentTenant.createdAt,
+										activeOrganization.createdAt,
 										"MMMM d, yyyy"
 									)}
 							</div>
@@ -134,18 +137,18 @@ const Page = () => {
 							<label className="text-sm font-medium text-muted-foreground">
 								Plan
 							</label>
-							<div className="flex items-center gap-2">
-								{currentTenant &&
+							{/* <div className="flex items-center gap-2">
+								{activeOrganization &&
 									getSubscriptionIcon(
-										currentTenant.subscription
+										activeOrganization.subscription
 									)}
 								<Badge
 									variant="secondary"
 									className="capitalize"
 								>
-									{currentTenant?.subscription}
+									{activeOrganization?.subscription}
 								</Badge>
-							</div>
+							</div> */}
 						</div>
 					</div>
 				</CardContent>
@@ -164,13 +167,14 @@ const Page = () => {
 						<div className="flex justify-between text-sm">
 							<span>Users</span>
 							<span className="font-medium">
-								{tenantUsers.length} / {currentTenant?.maxUsers}
+								{members?.length} /{" "}
+								{activeOrganization?.maxUsers}
 							</span>
 						</div>
 						<Progress
 							value={
-								(tenantUsers.length /
-									(currentTenant?.maxUsers || 1)) *
+								(members?.length /
+									(activeOrganization?.maxUsers || 1)) *
 								100
 							}
 							className="h-2"
@@ -181,13 +185,14 @@ const Page = () => {
 						<div className="flex justify-between text-sm">
 							<span>Notes</span>
 							<span className="font-medium">
-								{tenantNotes.length} / {currentTenant?.maxNotes}
+								{tenantNotes.length} /{" "}
+								{activeOrganization?.maxNotes}
 							</span>
 						</div>
 						<Progress
 							value={
 								(tenantNotes.length /
-									(currentTenant?.maxNotes || 1)) *
+									(activeOrganization?.maxNotes || 1)) *
 								100
 							}
 							className="h-2"
@@ -197,10 +202,10 @@ const Page = () => {
 			</Card>
 
 			{/* Subscription Details */}
-			<Card>
+			{/* <Card>
 				<CardHeader>
 					<CardTitle className="flex items-center gap-2">
-						{currentTenant &&
+						{activeOrganization &&
 							getSubscriptionIcon(currentTenant.subscription)}
 						Subscription Plan
 					</CardTitle>
@@ -245,7 +250,7 @@ const Page = () => {
 						</div>
 					</div>
 				</CardContent>
-			</Card>
+			</Card> */}
 
 			{/* Quick Actions */}
 			<Card>
