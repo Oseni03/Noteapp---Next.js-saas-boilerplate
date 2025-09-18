@@ -15,6 +15,7 @@ const Page = () => {
 
 	const user = session?.user;
 	const members = activeOrganization?.members;
+	const maxUsers = 100;
 
 	if (user?.role !== "admin") {
 		return (
@@ -41,8 +42,7 @@ const Page = () => {
 						User Management
 					</h1>
 					<p className="text-muted-foreground">
-						{members?.length || 0} of {activeOrganization?.maxUsers}{" "}
-						users
+						{members?.length || 0} of {maxUsers} users
 					</p>
 				</div>
 				<Button disabled>
@@ -64,9 +64,7 @@ const Page = () => {
 							{members?.length}
 						</div>
 						<div className="text-xs text-muted-foreground">
-							{activeOrganization?.maxUsers! -
-								(members?.length || 0)}{" "}
-							slots available
+							{maxUsers! - (members?.length || 0)} slots available
 						</div>
 					</CardContent>
 				</Card>

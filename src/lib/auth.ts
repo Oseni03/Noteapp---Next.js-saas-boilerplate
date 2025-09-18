@@ -7,45 +7,15 @@ import { prisma } from "./prisma";
 import { getActiveOrganization } from "@/server/organizations";
 
 export const auth = betterAuth({
-	emailVerification: {
-		sendVerificationEmail: async ({ user, url }) => {
-			console.log("Verification URL:", url);
-		},
-		sendOnSignUp: true,
-	},
-	socialProviders: {
-		google: {
-			clientId: process.env.GOOGLE_CLIENT_ID as string,
-			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-		},
-	},
 	emailAndPassword: {
 		enabled: true,
 		sendResetPassword: async ({ user, url }) => {
 			console.log("Reset password URL:", url);
 		},
-		requireEmailVerification: true,
-	},
-	databaseHooks: {
-		session: {
-			create: {
-				before: async (session) => {
-					const organization = await getActiveOrganization(
-						session.userId
-					);
-					return {
-						data: {
-							...session,
-							activeOrganizationId: organization?.id,
-							role: organization?.role,
-						},
-					};
-				},
-			},
-		},
+		requireEmailVerification: false,
 	},
 	database: prismaAdapter(prisma, {
-		provider: "sqlite", // or "mysql", "postgresql", ...etc
+		provider: "postgresql", // or "mysql", "postgresql", ...etc
 	}),
 	plugins: [
 		organization({
@@ -59,6 +29,30 @@ export const auth = betterAuth({
 				admin,
 				member,
 			},
+			schema: {
+				organization: {
+					additionalFields: {
+						maxUsers: {
+							type: "number",
+							input: true,
+							required: false,
+							defaultValue: 5,
+						},
+						maxNotes: {
+							type: "number",
+							input: true,
+							required: false,
+							defaultValue: 50,
+						},
+						subscription: {
+							type: "string",
+							input: true,
+							required: false,
+							defaultValue: "free",
+						},
+					},
+				},
+			},
 		}),
 		nextCookies(),
 		customSession(async ({ user, session }) => {
@@ -69,7 +63,12 @@ export const auth = betterAuth({
 					role: organization?.role,
 				},
 				session,
+				activeOrganizationId: organization?.id,
+				subscription: organization?.subscription || "free",
 			};
 		}),
 	],
 });
+
+export type User = typeof auth.$Infer.Session.user;
+export type Session = typeof auth.$Infer.Session.session;

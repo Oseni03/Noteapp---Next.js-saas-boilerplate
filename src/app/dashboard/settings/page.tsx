@@ -25,6 +25,7 @@ const Page = () => {
 
 	const user = session?.user;
 	const members = activeOrganization?.members;
+	const maxUsers = 100;
 
 	if (user?.role !== "admin") {
 		return (
@@ -167,15 +168,12 @@ const Page = () => {
 						<div className="flex justify-between text-sm">
 							<span>Users</span>
 							<span className="font-medium">
-								{members?.length} /{" "}
-								{activeOrganization?.maxUsers}
+								{members?.length} / {maxUsers}
 							</span>
 						</div>
 						<Progress
 							value={
-								(members?.length /
-									(activeOrganization?.maxUsers || 1)) *
-								100
+								((members?.length || 0) / (maxUsers || 1)) * 100
 							}
 							className="h-2"
 						/>

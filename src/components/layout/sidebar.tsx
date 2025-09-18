@@ -122,7 +122,7 @@ export const Sidebar: React.FC = () => {
 											</div>
 										</div>
 									</div>
-									{/* <Badge
+									<Badge
 										variant="secondary"
 										className={`text-xs ${getSubscriptionColor(
 											org.subscription
@@ -132,7 +132,7 @@ export const Sidebar: React.FC = () => {
 											<Crown className="w-3 h-3 mr-1" />
 										)}
 										{org.subscription}
-									</Badge> */}
+									</Badge>
 								</div>
 							</DropdownMenuItem>
 						))}

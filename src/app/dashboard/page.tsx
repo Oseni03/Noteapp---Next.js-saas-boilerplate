@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -15,17 +15,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Search, Edit, Trash2, Tag, Calendar, User } from "lucide-react";
-import { Note } from "@/types";
 import { format } from "date-fns";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import { Note } from "@prisma/client";
 
 const Page = () => {
 	const { data: activeOrganization } = authClient.useActiveOrganization();
 	const { data: session } = authClient.useSession();
 
 	const user = session?.user;
-	const members = activeOrganization?.members;
-	const [notes] = useState<Note[]>([]);
+	const [notes, setNotes] = useState<Note[]>([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [editingNote, setEditingNote] = useState<Note | null>(null);
@@ -53,22 +53,68 @@ const Page = () => {
 		);
 	}, [tenantNotes, searchTerm]);
 
-	const handleCreateNote = () => {
+	useEffect(() => {
+		const getNotes = async () => {
+			try {
+				const resp = await fetch("/api/notes");
+				if (!resp.ok) {
+					throw new Error("Error getting notes");
+				}
+				const { notes } = await resp.json();
+				setNotes(notes);
+			} catch (error: unknown) {
+				console.log("Error getting notes", error);
+				toast.info(error?.message || "Error getting notes");
+			}
+		};
+
+		getNotes();
+	}, []);
+
+	const handleCreateNote = async () => {
 		if (!user || !activeOrganization) return;
 
-		addNote({
-			title: newNote.title || "Untitled Note",
-			content: newNote.content,
-			authorId: user.id,
-			organizationId: activeOrganization.id,
-			tags: newNote.tags
-				? newNote.tags.split(",").map((tag) => tag.trim())
-				: [],
-			isPublic: newNote.isPublic,
-		});
+		try {
+			toast.loading("Creating note...");
+			const response = await fetch("/api/notes", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					title: newNote.title || "Untitled Note",
+					content: newNote.content,
+					authorId: user.id,
+					organizationId: activeOrganization.id,
+					tags: newNote.tags
+						? newNote.tags.split(",").map((tag) => tag.trim())
+						: [],
+					isPublic: newNote.isPublic,
+				}),
+			});
 
-		setNewNote({ title: "", content: "", tags: "", isPublic: true });
-		setIsCreateModalOpen(false);
+			if (!response.ok) {
+				throw new Error(
+					`Failed to create note: ${response.statusText}`
+				);
+			}
+
+			const { note: createdNote, message } = await response.json();
+
+			setNotes((prev) => [...prev, createdNote]);
+
+			// Reset form and close modal
+			setNewNote({ title: "", content: "", tags: "", isPublic: true });
+			setIsCreateModalOpen(false);
+
+			toast.dismiss();
+			toast.success(message || " Note created successful");
+			console.log("Note created successfully:", createdNote);
+		} catch (error) {
+			console.error("Error creating note:", error);
+			toast.dismiss();
+			toast.error("Error creating note");
+		}
 	};
 
 	const handleEditNote = (note: Note) => {
@@ -81,27 +127,86 @@ const Page = () => {
 		});
 	};
 
-	const handleUpdateNote = () => {
-		if (!editingNote) return;
+	const handleUpdateNote = async () => {
+		if (!user || !activeOrganization || !editingNote) return;
 
-		updateNote(editingNote.id, {
-			title: newNote.title || "Untitled Note",
-			content: newNote.content,
-			tags: newNote.tags
-				? newNote.tags.split(",").map((tag) => tag.trim())
-				: [],
-			isPublic: newNote.isPublic,
-		});
+		try {
+			toast.loading("Updating note...");
+			const response = await fetch(`/api/notes/${editingNote.id}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					title: newNote.title || "Untitled Note",
+					content: newNote.content,
+					authorId: user.id,
+					organizationId: activeOrganization.id,
+					tags: newNote.tags
+						? newNote.tags.split(",").map((tag) => tag.trim())
+						: [],
+					isPublic: newNote.isPublic,
+				}),
+			});
 
-		setEditingNote(null);
-		setNewNote({ title: "", content: "", tags: "", isPublic: true });
+			if (!response.ok) {
+				throw new Error(
+					`Failed to update note: ${response.statusText}`
+				);
+			}
+
+			const { note: updatedNote, message } = await response.json();
+
+			// Reset state
+			setEditingNote(null);
+			setNewNote({ title: "", content: "", tags: "", isPublic: true });
+
+			// Optional: Update local state if you're managing it
+			setNotes((prevNotes) =>
+				prevNotes.map((note) =>
+					note.id === updatedNote.id ? updatedNote : note
+				)
+			);
+
+			toast.dismiss();
+			toast.success(message || "Note updated successful");
+			console.log("Note updated successfully:", updatedNote);
+		} catch (error) {
+			console.error("Error updating note:", error);
+			toast.dismiss();
+			toast.error("Error updating note");
+		}
 	};
 
-	const getAuthorName = (authorId: string) => {
-		return (
-			members?.find((member) => member.id === authorId)?.user.name ||
-			"Unknown"
-		);
+	const handleDeleteNote = async (noteId: string) => {
+		try {
+			toast.loading("Deleting note...");
+			const response = await fetch(`/api/notes/${noteId}`, {
+				method: "DELETE",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			});
+
+			if (!response.ok) {
+				throw new Error(
+					`Failed to update note: ${response.statusText}`
+				);
+			}
+
+			const { message } = await response.json();
+
+			// Optional: Update local state if you're managing it
+			setNotes((prevNotes) =>
+				prevNotes.filter((note) => note.id !== noteId)
+			);
+			toast.dismiss();
+			toast.success(message || "Note deleted successfully");
+		} catch (error) {
+			console.error("Error deleting note:", error);
+			toast.dismiss();
+			toast.error("Error deleting note");
+		}
 	};
 
 	const canEditNote = (note: Note) => {
@@ -109,7 +214,7 @@ const Page = () => {
 	};
 
 	const hasReachedLimit = () => {
-		return tenantNotes.length >= (activeOrganization?.maxNotes || 0);
+		return tenantNotes.length >= (activeOrganization?.maxNotes || 50);
 	};
 
 	return (
@@ -171,7 +276,9 @@ const Page = () => {
 										<Button
 											variant="ghost"
 											size="sm"
-											onClick={() => deleteNote(note.id)}
+											onClick={() =>
+												handleDeleteNote(note.id)
+											}
 											className="h-8 w-8 p-0 text-destructive hover:text-destructive"
 										>
 											<Trash2 className="w-3 h-3" />
@@ -211,7 +318,7 @@ const Page = () => {
 							<div className="flex items-center justify-between text-xs text-muted-foreground">
 								<div className="flex items-center gap-1">
 									<User className="w-3 h-3" />
-									{getAuthorName(note.authorId)}
+									{note.author.name}
 								</div>
 								<div className="flex items-center gap-1">
 									<Calendar className="w-3 h-3" />

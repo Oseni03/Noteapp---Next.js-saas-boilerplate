@@ -35,7 +35,7 @@ const Signup = () => {
 		company: "",
 		agreeTerms: false,
 	});
-	const [selectedPlan, setSelectedPlan] = useState("pro");
+	const [selectedPlan, setSelectedPlan] = useState("free");
 	const [loading, setIsLoading] = useState(false);
 	const router = useRouter();
 
@@ -45,6 +45,8 @@ const Signup = () => {
 			name: "Free",
 			price: "$0",
 			period: "/month",
+			maxUsers: 5,
+			maxNotes: 50,
 			icon: <Building2 className="w-4 h-4" />,
 			features: ["5 users", "50 notes", "Basic support"],
 		},
@@ -53,6 +55,8 @@ const Signup = () => {
 			name: "Pro",
 			price: "$19",
 			period: "/month",
+			maxUsers: 25,
+			maxNotes: 500,
 			icon: <Zap className="w-4 h-4" />,
 			features: ["25 users", "500 notes", "Email support", "API access"],
 			popular: true,
@@ -62,6 +66,8 @@ const Signup = () => {
 			name: "Enterprise",
 			price: "Custom",
 			period: "",
+			maxUsers: 100,
+			maxNotes: 1000,
 			icon: <Crown className="w-4 h-4" />,
 			features: ["Unlimited users", "1000 notes", "Priority support"],
 		},
@@ -76,11 +82,21 @@ const Signup = () => {
 		e.preventDefault();
 		setIsLoading(true);
 
-		const { success, message } = await signUp(
-			formData.email,
-			formData.password,
-			formData.name
-		);
+		const plan = plans.find((plan) => plan.id == selectedPlan);
+		if (!plan) {
+			toast.error("No plan selected");
+			return;
+		}
+
+		const { success, message } = await signUp({
+			email: formData.email,
+			password: formData.password,
+			username: formData.name,
+			company: formData.company,
+			maxNotes: plan.maxNotes,
+			maxUsers: plan.maxUsers,
+			subscription: plan.id,
+		});
 
 		if (success) {
 			toast.success(

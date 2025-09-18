@@ -30,7 +30,7 @@ export async function getOrganizations() {
 export async function getActiveOrganization(userId: string) {
 	const memberUser = await prisma.member.findFirst({
 		where: {
-			userId: userId,
+			userId,
 		},
 	});
 
@@ -40,6 +40,7 @@ export async function getActiveOrganization(userId: string) {
 
 	const activeOrganization = await prisma.organization.findFirst({
 		where: { id: memberUser.organizationId },
+		include: { members: true },
 	});
 
 	return { ...activeOrganization, role: memberUser.role };
