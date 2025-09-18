@@ -2,21 +2,12 @@
 
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-	Building2,
-	Crown,
-	Users,
-	FileText,
-	Calendar,
-	Shield,
-	Zap,
-} from "lucide-react";
-import { format } from "date-fns";
+import { Users, FileText, Shield } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
-import { Note } from "@/types";
+import { Note, Organization } from "@/types";
+import OrganizationCard from "@/components/settings/organizations";
 
 const Page = () => {
 	const { data: activeOrganization } = authClient.useActiveOrganization();
@@ -46,17 +37,6 @@ const Page = () => {
 	const tenantNotes = notes.filter(
 		(note) => note.organizationId === activeOrganization?.id
 	);
-
-	const getSubscriptionIcon = (subscription: string) => {
-		switch (subscription) {
-			case "enterprise":
-				return <Crown className="w-5 h-5 text-purple-500" />;
-			case "pro":
-				return <Zap className="w-5 h-5 text-blue-500" />;
-			default:
-				return <Building2 className="w-5 h-5 text-gray-500" />;
-		}
-	};
 
 	const getSubscriptionFeatures = (subscription: string) => {
 		switch (subscription) {
@@ -97,63 +77,9 @@ const Page = () => {
 			</div>
 
 			{/* Organization Info */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						<Building2 className="w-5 h-5" />
-						Organization Information
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div>
-							<label className="text-sm font-medium text-muted-foreground">
-								Name
-							</label>
-							<div className="text-lg font-medium">
-								{activeOrganization?.name}
-							</div>
-						</div>
-						<div>
-							<label className="text-sm font-medium text-muted-foreground">
-								Domain
-							</label>
-							{/* <div className="text-lg font-medium">
-								{activeOrganization?.domain}
-							</div> */}
-						</div>
-						<div>
-							<label className="text-sm font-medium text-muted-foreground">
-								Created
-							</label>
-							<div className="text-lg font-medium">
-								{activeOrganization &&
-									format(
-										activeOrganization.createdAt,
-										"MMMM d, yyyy"
-									)}
-							</div>
-						</div>
-						<div>
-							<label className="text-sm font-medium text-muted-foreground">
-								Plan
-							</label>
-							{/* <div className="flex items-center gap-2">
-								{activeOrganization &&
-									getSubscriptionIcon(
-										activeOrganization.subscription
-									)}
-								<Badge
-									variant="secondary"
-									className="capitalize"
-								>
-									{activeOrganization?.subscription}
-								</Badge>
-							</div> */}
-						</div>
-					</div>
-				</CardContent>
-			</Card>
+			<OrganizationCard
+				activeOrganization={activeOrganization as Organization}
+			/>
 
 			{/* Usage & Limits */}
 			<Card>
