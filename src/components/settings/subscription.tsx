@@ -52,7 +52,7 @@ const SubscriptionCard = () => {
 		} catch (error) {
 			console.error("Error updating tenant subscription:", error);
 			toast.dismiss();
-			toast.error("Error updating tenant subscription");
+			toast.error("Unauthorized to upgrade plan");
 		} finally {
 			setIsLoading(false);
 		}

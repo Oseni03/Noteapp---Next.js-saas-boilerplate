@@ -18,7 +18,7 @@ export async function POST(
 			return NextResponse.json(
 				{
 					success: false,
-					message: "Unauthorized",
+					message: "Unauthorized. Upgrade your plan.",
 					data: null,
 				},
 				{ status: 401 }
