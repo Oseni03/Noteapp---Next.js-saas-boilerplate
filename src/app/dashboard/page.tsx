@@ -16,17 +16,12 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Search, Edit, Trash2, Tag, Calendar, User } from "lucide-react";
 import { format } from "date-fns";
-import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Note } from "@/types";
-import { Organization } from "@/types";
+import { useAuthState } from "@/hooks/use-auth";
 
 const Page = () => {
-	const { data } = authClient.useActiveOrganization();
-	const activeOrganization = data as Organization;
-	const { data: session } = authClient.useSession();
-
-	const user = session?.user;
+	const { activeOrganization, user } = useAuthState();
 	const [notes, setNotes] = useState<Note[]>([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);

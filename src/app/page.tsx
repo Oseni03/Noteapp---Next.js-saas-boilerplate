@@ -8,10 +8,8 @@ import {
 	Users,
 	Shield,
 	Zap,
-	Crown,
 	CheckCircle,
 	ArrowRight,
-	Building2,
 } from "lucide-react";
 import { SUBSCRIPTION_PLANS } from "@/lib/utils";
 
