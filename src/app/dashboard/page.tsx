@@ -39,9 +39,7 @@ const Page = () => {
 	});
 
 	const tenantNotes = useMemo(() => {
-		return notes.filter(
-			(note) => note.organizationId === activeOrganization?.id
-		);
+		return notes.filter((note) => note.tenantId === activeOrganization?.id);
 	}, [notes, activeOrganization?.id]);
 
 	const filteredNotes = useMemo(() => {
@@ -87,7 +85,7 @@ const Page = () => {
 					title: newNote.title || "Untitled Note",
 					content: newNote.content,
 					authorId: user.id,
-					organizationId: activeOrganization.id,
+					tenantId: activeOrganization.id,
 					tags: newNote.tags
 						? newNote.tags.split(",").map((tag) => tag.trim())
 						: [],
@@ -143,7 +141,7 @@ const Page = () => {
 					title: newNote.title || "Untitled Note",
 					content: newNote.content,
 					authorId: user.id,
-					organizationId: activeOrganization.id,
+					tenantId: activeOrganization.id,
 					tags: newNote.tags
 						? newNote.tags.split(",").map((tag) => tag.trim())
 						: [],

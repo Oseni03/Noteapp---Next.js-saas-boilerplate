@@ -10,15 +10,15 @@ export async function GET() {
 
 		return NextResponse.json({
 			success: true,
-			message: "Organizations retrieved successfully",
+			message: "Tenants retrieved successfully",
 			data,
 		});
 	} catch (error) {
-		console.error("Error listing organizations:", error);
+		console.error("Error listing tenants:", error);
 		return NextResponse.json(
 			{
 				success: false,
-				message: "Failed to list organizations",
+				message: "Failed to list tenants",
 				data: null,
 			},
 			{ status: 500 }
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json(
 				{
 					success: false,
-					message: "Organization name is required",
+					message: "Tenant name is required",
 					data: null,
 				},
 				{ status: 400 }
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json(
 				{
 					success: false,
-					message: "Organization slug is required",
+					message: "Tenant slug is required",
 					data: null,
 				},
 				{ status: 400 }
@@ -68,15 +68,15 @@ export async function POST(request: NextRequest) {
 
 		return NextResponse.json({
 			success: true,
-			message: "Organization created successfully",
+			message: "Tenant created successfully",
 			data,
 		});
 	} catch (error) {
-		console.error("Error creating organization:", error);
+		console.error("Error creating tenant:", error);
 		return NextResponse.json(
 			{
 				success: false,
-				message: "Failed to create organization",
+				message: "Failed to create tenant",
 				data: null,
 			},
 			{ status: 500 }

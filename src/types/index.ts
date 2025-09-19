@@ -34,7 +34,7 @@ export interface Note {
 	title: string;
 	content: string;
 	authorId: string;
-	organizationId: string;
+	tenantId: string;
 	tags: string[];
 	isPublic: boolean;
 	createdAt: Date;

@@ -5,36 +5,35 @@ export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
 
-		if (!body.organizationId) {
+		// Validate required fields
+		if (!body.slug) {
 			return NextResponse.json(
 				{
 					success: false,
-					message: "organizationId is required",
+					message: "Slug is required",
 					data: null,
 				},
 				{ status: 400 }
 			);
 		}
 
-		console.log("setting active organization: ", { body });
-
-		const data = await auth.api.setActiveOrganization({
+		const data = await auth.api.checkOrganizationSlug({
 			body: {
-				organizationId: body.organizationId,
+				slug: body.slug, // required
 			},
 		});
 
 		return NextResponse.json({
 			success: true,
-			message: "Active organization set successfully",
+			message: "Slug availability checked successfully",
 			data,
 		});
 	} catch (error) {
-		console.error("Error setting active organization:", error);
+		console.error("Error checking tenant slug:", error);
 		return NextResponse.json(
 			{
 				success: false,
-				message: "Failed to set active organization",
+				message: "Failed to check tenent slug",
 				data: null,
 			},
 			{ status: 500 }

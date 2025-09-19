@@ -39,10 +39,12 @@ export function NavUser({ user }: { user: User }) {
 		try {
 			toast.loading("Signing out");
 			authClient.signOut();
+			toast.dismiss();
 			toast.success("Signed out");
 			router.push("/");
 		} catch (error) {
 			console.log("Error signing out: ", error);
+			toast.dismiss();
 			toast.error("Error signing out");
 		}
 	};

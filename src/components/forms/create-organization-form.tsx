@@ -37,10 +37,10 @@ export function CreateOrganizationForm() {
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		try {
-			toast.loading("Creating organization...");
+			toast.loading("Creating Tenant...");
 			setIsLoading(true);
 
-			const response = await fetch("/api/organizations", {
+			const response = await fetch("/api/tenants", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
@@ -62,7 +62,7 @@ export function CreateOrganizationForm() {
 		} catch (error) {
 			console.error(error);
 			toast.dismiss();
-			toast.error("Failed to create organization");
+			toast.error("Failed to create tenant");
 		} finally {
 			setIsLoading(false);
 		}
@@ -78,10 +78,7 @@ export function CreateOrganizationForm() {
 						<FormItem>
 							<FormLabel>Name</FormLabel>
 							<FormControl>
-								<Input
-									placeholder="My Organization"
-									{...field}
-								/>
+								<Input placeholder="My Tenant" {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -95,7 +92,7 @@ export function CreateOrganizationForm() {
 						<FormItem>
 							<FormLabel>Slug</FormLabel>
 							<FormControl>
-								<Input placeholder="my-org" {...field} />
+								<Input placeholder="my-tenant" {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -103,7 +100,7 @@ export function CreateOrganizationForm() {
 				/>
 
 				<Button disabled={isLoading} type="submit">
-					Create Organization
+					Create Tenant
 					{isLoading && <Loader2 className="size-4 animate-spin" />}
 				</Button>
 			</form>

@@ -14,7 +14,7 @@ export async function GET(
 			const note = await prisma.note.findFirst({
 				where: {
 					id: noteId,
-					organizationId: currentUser.organizationId,
+					tenantId: currentUser.organizationId,
 				},
 				include: {
 					author: {
@@ -77,7 +77,7 @@ export async function PUT(
 			const existingNote = await prisma.note.findFirst({
 				where: {
 					id: noteId,
-					organizationId: currentUser.organizationId,
+					tenantId: currentUser.organizationId,
 				},
 			});
 
@@ -155,7 +155,7 @@ export async function DELETE(
 			const existingNote = await prisma.note.findFirst({
 				where: {
 					id: noteId,
-					organizationId: currentUser.organizationId,
+					tenantId: currentUser.organizationId,
 				},
 			});
 

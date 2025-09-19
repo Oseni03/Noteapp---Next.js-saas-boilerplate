@@ -56,7 +56,7 @@ const OrganizationCard = () => {
 			setIsLoading(true);
 
 			const response = await fetch(
-				`/api/organizations/${activeOrganization?.id}`,
+				`/api/tenants/${activeOrganization?.slug}`,
 				{
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
@@ -76,7 +76,7 @@ const OrganizationCard = () => {
 		} catch (error) {
 			console.error(error);
 			toast.dismiss();
-			toast.error("Failed to create organization");
+			toast.error("Failed to delete tenant");
 		} finally {
 			setIsLoading(false);
 			setDeleteDialogOpen(false);
@@ -92,7 +92,7 @@ const OrganizationCard = () => {
 					<div className="flex items-center justify-between">
 						<h3 className="text-lg font-semibold flex items-center gap-2">
 							<Building2 className="w-6 h-6" />
-							Organization Information
+							Tenant Information
 						</h3>
 						<div className="flex items-center gap-2">
 							<Dialog
@@ -168,10 +168,10 @@ const OrganizationCard = () => {
 			<Dialog open={updateDialogOpen} onOpenChange={setUpdateDialogOpen}>
 				<DialogContent showCloseButton={true}>
 					<DialogHeader>
-						<DialogTitle>Update Organization</DialogTitle>
+						<DialogTitle>Update Tenant</DialogTitle>
 						<DialogDescription>
-							Make changes to your organization information here.
-							Click save when you&rsquo;re done.
+							Make changes to your tenant information here. Click
+							save when you&rsquo;re done.
 						</DialogDescription>
 					</DialogHeader>
 					<UpdateOrganizationForm
@@ -192,7 +192,7 @@ const OrganizationCard = () => {
 						</AlertDialogTitle>
 						<AlertDialogDescription>
 							This action cannot be undone. This will permanently
-							delete the organization{" "}
+							delete the tenant{" "}
 							<strong>{activeOrganization?.name}</strong> and
 							remove all associated data from our servers.
 						</AlertDialogDescription>
@@ -203,7 +203,7 @@ const OrganizationCard = () => {
 							onClick={handleDeleteConfirm}
 							className="bg-red-600 hover:bg-red-700"
 						>
-							Delete Organization
+							Delete Tenant
 							{isLoading && (
 								<Loader2 className="size-4 animate-spin" />
 							)}

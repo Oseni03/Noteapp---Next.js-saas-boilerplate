@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Users } from "lucide-react";
 import { Progress } from "../ui/progress";
-import { Note } from "@prisma/client";
+import { Note } from "@/types";
 import { useAuthState } from "@/hooks/use-auth";
 
 export const UsageCard = () => {

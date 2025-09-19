@@ -94,7 +94,7 @@ export function TeamSwitcher() {
 							sideOffset={4}
 						>
 							<DropdownMenuLabel className="text-muted-foreground text-xs">
-								Organizations
+								Tenants
 							</DropdownMenuLabel>
 							{organizations?.map((org, index) => (
 								<DropdownMenuItem
@@ -122,7 +122,7 @@ export function TeamSwitcher() {
 									<Plus className="size-4" />
 								</div>
 								<div className="text-muted-foreground font-medium">
-									Add Organization
+									Add Tenant
 								</div>
 							</DropdownMenuItem>
 						</DropdownMenuContent>
@@ -131,9 +131,9 @@ export function TeamSwitcher() {
 					{/* Dialog Content */}
 					<DialogContent showCloseButton={true}>
 						<DialogHeader>
-							<DialogTitle>Create Organization</DialogTitle>
+							<DialogTitle>Create Tenanat</DialogTitle>
 							<DialogDescription>
-								Create a new organization to get started.
+								Create a new tenant to get started.
 							</DialogDescription>
 						</DialogHeader>
 						<CreateOrganizationForm />

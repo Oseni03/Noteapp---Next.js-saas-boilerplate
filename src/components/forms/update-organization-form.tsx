@@ -40,19 +40,16 @@ export function UpdateOrganizationForm({
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		try {
-			toast.loading("Updating organization...");
+			toast.loading("Updating Tenants...");
 			setIsLoading(true);
 
-			const response = await fetch(
-				`/api/organizations/${organization.id}`,
-				{
-					method: "PUT",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						data: { name: values.name, slug: values.slug },
-					}),
-				}
-			);
+			const response = await fetch(`/api/tenants/${organization.slug}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					data: { name: values.name, slug: values.slug },
+				}),
+			});
 
 			const result = await response.json();
 
@@ -67,7 +64,7 @@ export function UpdateOrganizationForm({
 		} catch (error) {
 			console.error(error);
 			toast.dismiss();
-			toast.error("Failed to update organization");
+			toast.error("Failed to update tenant");
 		} finally {
 			setIsLoading(false);
 		}
@@ -83,10 +80,7 @@ export function UpdateOrganizationForm({
 						<FormItem>
 							<FormLabel>Name</FormLabel>
 							<FormControl>
-								<Input
-									placeholder="My Organization"
-									{...field}
-								/>
+								<Input placeholder="My Tenant" {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -100,7 +94,7 @@ export function UpdateOrganizationForm({
 						<FormItem>
 							<FormLabel>Slug</FormLabel>
 							<FormControl>
-								<Input placeholder="my-org" {...field} />
+								<Input placeholder="my-tenant" {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -108,7 +102,7 @@ export function UpdateOrganizationForm({
 				/>
 
 				<Button disabled={isLoading} type="submit">
-					Update Organization
+					Update Tenant
 					{isLoading && <Loader2 className="size-4 animate-spin" />}
 				</Button>
 			</form>

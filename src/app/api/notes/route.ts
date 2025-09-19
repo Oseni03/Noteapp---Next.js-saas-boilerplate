@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 				notes = await prisma.note.findMany({
 					where: {
 						authorId: currentUser.id,
-						organizationId: currentUser.organizationId,
+						tenantId: currentUser.organizationId,
 					},
 					include: {
 						author: {
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
 				notes = await prisma.note.findMany({
 					where: {
 						authorId: currentUser.id,
-						organizationId: currentUser.organizationId,
+						tenantId: currentUser.organizationId,
 					},
 					orderBy: {
 						updatedAt: "desc",
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 				const userNotesCount = await prisma.note.count({
 					where: {
 						authorId: currentUser.id,
-						organizationId: currentUser.organizationId,
+						tenantId: currentUser.organizationId,
 					},
 				});
 
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest) {
 					content,
 					tags,
 					authorId: currentUser.id,
-					organizationId: currentUser.organizationId,
+					tenantId: currentUser.organizationId,
 					isPublic,
 					createdAt: new Date(),
 					updatedAt: new Date(),

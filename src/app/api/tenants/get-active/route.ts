@@ -19,22 +19,22 @@ export async function GET() {
 			});
 			return NextResponse.json({
 				success: true,
-				message: "Organization retrieved successfully",
+				message: "Tenant retrieved successfully",
 				data: active,
 			});
 		}
 
 		return NextResponse.json({
 			success: true,
-			message: "Organization retrieved successfully",
+			message: "Tenant retrieved successfully",
 			data,
 		});
 	} catch (error) {
-		console.error("Error getting organization:", error);
+		console.error("Error getting tenant:", error);
 		return NextResponse.json(
 			{
 				success: false,
-				message: "Failed to get organization",
+				message: "Failed to get tenant",
 				data: null,
 			},
 			{ status: 500 }
