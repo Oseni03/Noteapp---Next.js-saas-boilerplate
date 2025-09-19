@@ -24,7 +24,7 @@ export const auth = betterAuth({
 		organization({
 			creatorRole: "admin",
 			async sendInvitationEmail(data) {
-				const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/api/accept-invitation/${data.id}`;
+				const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/api/invitations/${data.id}/accept`;
 
 				console.log("Invite link:", inviteLink);
 			},

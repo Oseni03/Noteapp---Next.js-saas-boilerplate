@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isAdmin } from "@/server/permissions";
 
 export async function GET(
 	request: NextRequest,
@@ -49,6 +50,21 @@ export async function PUT(
 ) {
 	try {
 		const { slug } = await params;
+
+		const { success } = await isAdmin();
+
+		if (!success) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: {
+						message: "Unauthorized!. Only admin are allowed.",
+					},
+					data: null,
+				},
+				{ status: 401 }
+			);
+		}
 
 		// Validate required params
 		if (!slug) {
@@ -115,6 +131,21 @@ export async function DELETE(
 ) {
 	try {
 		const { slug } = await params;
+
+		const { success } = await isAdmin();
+
+		if (!success) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: {
+						message: "Unauthorized!. Only admin are allowed.",
+					},
+					data: null,
+				},
+				{ status: 401 }
+			);
+		}
 
 		// Validate required params
 		if (!slug) {

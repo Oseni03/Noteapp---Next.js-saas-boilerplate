@@ -41,3 +41,14 @@ export interface Note {
 	updatedAt: Date;
 	author: User;
 }
+
+export interface InvitationData {
+	id: string;
+	email: string;
+	role: string;
+	organizationId: string;
+	teamId?: string;
+	status: "pending" | "accepted" | "rejected" | "cancelled";
+	createdAt: string;
+	expiresAt: string;
+}

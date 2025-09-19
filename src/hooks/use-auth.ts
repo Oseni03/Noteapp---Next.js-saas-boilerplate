@@ -14,7 +14,12 @@ export function useAuthState() {
 	const activeOrganization = data as Organization;
 
 	const user = session?.user;
-	const members = activeOrganization?.members;
+	const members = data?.members;
+
+	const isAdmin =
+		members?.find(
+			(member) => member.userId == user?.id && member.role == "admin"
+		) || false;
 
 	return useMemo(
 		() => ({
@@ -34,7 +39,7 @@ export function useAuthState() {
 
 			// Computed auth states
 			isAuthenticated: !!user,
-			isAdmin: user?.role === "admin",
+			isAdmin,
 			// isOwner: activeOrganization?.ownerId === user?.id,
 			isMember: members?.some((member) => member.userId === user?.id),
 
@@ -58,6 +63,7 @@ export function useAuthState() {
 			isSessionLoading,
 			sessionError,
 			user,
+			isAdmin,
 			members,
 		]
 	);
