@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,8 +14,15 @@ import {
 	ArrowRight,
 } from "lucide-react";
 import { SUBSCRIPTION_PLANS } from "@/lib/utils";
+import { useAuthState } from "@/hooks/use-auth";
+import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const Page = () => {
+	const { isAuthenticated } = useAuthState();
+	const router = useRouter();
+
 	const features = [
 		{
 			icon: <FileText className="w-6 h-6" />,
@@ -41,6 +50,20 @@ const Page = () => {
 		},
 	];
 
+	const handleSignOut = async () => {
+		try {
+			toast.loading("Signing out");
+			authClient.signOut();
+			toast.dismiss();
+			toast.success("Signed out");
+			router.push("/");
+		} catch (error) {
+			console.log("Error signing out: ", error);
+			toast.dismiss();
+			toast.error("Error signing out");
+		}
+	};
+
 	return (
 		<div className="min-h-screen bg-background">
 			{/* Header */}
@@ -52,6 +75,25 @@ const Page = () => {
 						</div>
 						<span className="text-xl font-bold">NotesApp</span>
 					</div>
+					{isAuthenticated ? (
+						<div className="flex items-center gap-4">
+							<Button onClick={handleSignOut} variant="ghost">
+								Sign Out
+							</Button>
+							<Link href="/dashboard">
+								<Button>Dashboard</Button>
+							</Link>
+						</div>
+					) : (
+						<div className="flex items-center gap-4">
+							<Link href="/login">
+								<Button variant="ghost">Sign In</Button>
+							</Link>
+							<Link href="/signup">
+								<Button>Get Started</Button>
+							</Link>
+						</div>
+					)}
 					<div className="flex items-center gap-4">
 						<Link href="/login">
 							<Button variant="ghost">Sign In</Button>

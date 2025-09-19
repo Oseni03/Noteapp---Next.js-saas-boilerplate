@@ -16,12 +16,18 @@ import { FileText, ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "@/server/users";
+import { useAuthState } from "@/hooks/use-auth";
 
 const Login = () => {
+	const { isAuthenticated } = useAuthState();
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setIsLoading] = useState(false);
 	const router = useRouter();
+
+	if (isAuthenticated) {
+		router.push("/dashboard");
+	}
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();

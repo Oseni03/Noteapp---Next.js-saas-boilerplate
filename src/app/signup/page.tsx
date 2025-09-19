@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signUp } from "@/server/users";
+import { useAuthState } from "@/hooks/use-auth";
 
 const Signup = () => {
 	const [formData, setFormData] = useState({
@@ -27,7 +28,12 @@ const Signup = () => {
 		agreeTerms: false,
 	});
 	const [loading, setIsLoading] = useState(false);
+	const { isAuthenticated } = useAuthState();
 	const router = useRouter();
+
+	if (isAuthenticated) {
+		router.push("/dashboard");
+	}
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
