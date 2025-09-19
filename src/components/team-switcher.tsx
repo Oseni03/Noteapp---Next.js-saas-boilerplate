@@ -38,12 +38,6 @@ export function TeamSwitcher() {
 
 	const activeOrganization = data as Organization;
 
-	React.useEffect(() => {
-		if (!activeOrganization && organizations && organizations?.length > 0) {
-			handleChangeOrganization(organizations[0].id);
-		}
-	}, [activeOrganization, organizations]);
-
 	const handleChangeOrganization = async (organizationId: string) => {
 		try {
 			const { error } = await authClient.organization.setActive({
@@ -62,6 +56,12 @@ export function TeamSwitcher() {
 			toast.error("Failed to switch organization");
 		}
 	};
+
+	React.useEffect(() => {
+		if (!activeOrganization && organizations && organizations?.length > 0) {
+			handleChangeOrganization(organizations[0].id);
+		}
+	}, [activeOrganization, organizations]);
 
 	return (
 		<Dialog onOpenChange={setDialogOpen} open={dialogOpen}>
