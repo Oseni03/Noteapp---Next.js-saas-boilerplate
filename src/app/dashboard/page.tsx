@@ -22,8 +22,8 @@ import { Note } from "@/types";
 import { Organization } from "@/types";
 
 const Page = () => {
-	const [activeOrganization, setActiveOrganization] =
-		useState<Organization | null>(null);
+	const { data } = authClient.useActiveOrganization();
+	const activeOrganization = data as Organization;
 	const { data: session } = authClient.useSession();
 
 	const user = session?.user;
@@ -37,24 +37,6 @@ const Page = () => {
 		tags: "",
 		isPublic: true,
 	});
-
-	useEffect(() => {
-		const getActiveOrganization = async () => {
-			try {
-				const response = await fetch("/api/organizations/get-active");
-
-				const result = await response.json();
-
-				if (result.success) {
-					setActiveOrganization(result.data);
-				}
-			} catch (error) {
-				console.error(error);
-			}
-		};
-
-		getActiveOrganization();
-	}, []);
 
 	const tenantNotes = useMemo(() => {
 		return notes.filter(

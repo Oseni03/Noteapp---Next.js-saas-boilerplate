@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { authClient } from "@/lib/auth-client";
 import { Organization } from "@/types";
 
@@ -10,26 +10,8 @@ export function useAuthState() {
 		isPending: isSessionLoading,
 		error: sessionError,
 	} = authClient.useSession();
-	const [activeOrganization, setActiveOrganization] =
-		useState<Organization | null>(null);
-
-	useEffect(() => {
-		const getActiveOrganization = async () => {
-			try {
-				const response = await fetch("/api/organizations/get-active");
-
-				const result = await response.json();
-
-				if (result.success) {
-					setActiveOrganization(result.data);
-				}
-			} catch (error) {
-				console.error(error);
-			}
-		};
-
-		getActiveOrganization();
-	}, []);
+	const { data } = authClient.useActiveOrganization();
+	const activeOrganization = data as Organization;
 
 	const user = session?.user;
 	const members = activeOrganization?.members;

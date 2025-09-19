@@ -33,27 +33,16 @@ import { Organization } from "@/types";
 export function TeamSwitcher() {
 	const { isMobile } = useSidebar();
 	const { data: organizations } = authClient.useListOrganizations();
-	const [activeOrganization, setActiveOrganization] =
-		React.useState<Organization | null>(null);
+	const { data } = authClient.useActiveOrganization();
 	const [dialogOpen, setDialogOpen] = React.useState(false);
 
+	const activeOrganization = data as Organization;
+
 	React.useEffect(() => {
-		const getActiveOrganization = async () => {
-			try {
-				const response = await fetch("/api/organizations/get-active");
-
-				const result = await response.json();
-
-				if (result.success) {
-					setActiveOrganization(result.data);
-				}
-			} catch (error) {
-				console.error(error);
-			}
-		};
-
-		getActiveOrganization();
-	}, []);
+		if (!activeOrganization && organizations && organizations?.length > 0) {
+			handleChangeOrganization(organizations[0].id);
+		}
+	}, [activeOrganization, organizations]);
 
 	const handleChangeOrganization = async (organizationId: string) => {
 		try {

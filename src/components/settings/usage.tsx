@@ -4,25 +4,21 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Users } from "lucide-react";
 import { Progress } from "../ui/progress";
-import { SUBSCRIPTION_PLANS } from "@/lib/utils";
 import { Note } from "@prisma/client";
 import { useAuthState } from "@/hooks/use-auth";
 
 export const UsageCard = () => {
 	const { activeOrganization, memberCount } = useAuthState();
 	const [notes, setNotes] = useState<Note[]>([]);
-	const activePlan = SUBSCRIPTION_PLANS.find(
-		(plan) => plan.id === activeOrganization?.subscription || "free"
-	);
-	const maxNotes = activePlan?.maxNotes
-		? activePlan?.maxNotes == 1
+	const maxNotes = activeOrganization?.maxNotes
+		? activeOrganization?.maxNotes == 1
 			? 1000000000
-			: activePlan?.maxNotes
+			: activeOrganization?.maxNotes
 		: 50;
-	const maxUsers = activePlan?.maxUsers
-		? activePlan?.maxUsers == 1
+	const maxUsers = activeOrganization?.maxUsers
+		? activeOrganization?.maxUsers == 1
 			? 1000000000
-			: activePlan?.maxUsers
+			: activeOrganization?.maxUsers
 		: 50;
 
 	useEffect(() => {

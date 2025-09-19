@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { SUBSCRIPTION_PLANS } from "@/lib/utils";
 import { isAdmin } from "@/server/permissions";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -54,8 +55,10 @@ export async function POST(
 
 		const body = await request.json();
 
+		const plan = SUBSCRIPTION_PLANS.find((p) => p.id == body.plan);
+
 		// Validate required fields
-		if (!body.plan) {
+		if (!body.plan || !plan) {
 			return NextResponse.json(
 				{
 					success: false,
@@ -68,7 +71,11 @@ export async function POST(
 
 		const data = await auth.api.updateOrganization({
 			body: {
-				data: { subscription: body.plan },
+				data: {
+					subscription: plan.id,
+					maxNotes: plan.maxNotes,
+					maxUsers: plan.maxUsers,
+				},
 				organizationId: tenant.id,
 			},
 			headers: await headers(),
