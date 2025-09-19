@@ -94,14 +94,6 @@ const Page = () => {
 							</Link>
 						</div>
 					)}
-					<div className="flex items-center gap-4">
-						<Link href="/login">
-							<Button variant="ghost">Sign In</Button>
-						</Link>
-						<Link href="/signup">
-							<Button>Get Started</Button>
-						</Link>
-					</div>
 				</div>
 			</header>
 
