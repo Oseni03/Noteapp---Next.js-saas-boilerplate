@@ -22,19 +22,33 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Organization } from "@/types";
 import { format } from "date-fns";
 import { UpdateOrganizationForm } from "../forms/update-organization-form";
 import { toast } from "sonner";
+import { useAuthState } from "@/hooks/use-auth";
+import { Organization } from "@/types";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
-const OrganizationCard = ({
-	activeOrganization,
-}: {
-	activeOrganization: Organization;
-}) => {
+const OrganizationCard = () => {
+	const { activeOrganization, isLoading: orgLoading } = useAuthState();
+
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+
+	if (orgLoading) {
+		return (
+			<Card>
+				<CardContent>
+					<div className="animate-pulse space-y-2">
+						<div className="h-4 bg-gray-200 rounded w-3/4"></div>
+						<div className="h-4 bg-gray-200 rounded w-1/2"></div>
+						<div className="h-4 bg-gray-200 rounded w-2/3"></div>
+					</div>
+				</CardContent>
+			</Card>
+		);
+	}
 
 	const handleDeleteConfirm = async () => {
 		try {
@@ -42,7 +56,7 @@ const OrganizationCard = ({
 			setIsLoading(true);
 
 			const response = await fetch(
-				`/api/organizations/${activeOrganization.id}`,
+				`/api/organizations/${activeOrganization?.id}`,
 				{
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
@@ -160,7 +174,9 @@ const OrganizationCard = ({
 							Click save when you&rsquo;re done.
 						</DialogDescription>
 					</DialogHeader>
-					<UpdateOrganizationForm organization={activeOrganization} />
+					<UpdateOrganizationForm
+						organization={activeOrganization as Organization}
+					/>
 				</DialogContent>
 			</Dialog>
 

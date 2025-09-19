@@ -9,7 +9,6 @@ export const isAdmin = async () => {
 			headers: await headers(),
 			body: {
 				permissions: {
-					notes: ["create", "update", "delete"],
 					organization: ["update", "delete"],
 					invitation: ["create", "cancel"],
 				},
@@ -23,7 +22,7 @@ export const isAdmin = async () => {
 			};
 		}
 
-		return success;
+		return { success };
 	} catch (error) {
 		console.error(error);
 		return {

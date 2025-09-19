@@ -1,24 +1,51 @@
 "use client";
 
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Users, FileText, Shield } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
-import { Note, Organization } from "@/types";
+import React from "react";
+import { Shield } from "lucide-react";
+import { useAuthState } from "@/hooks/use-auth";
 import OrganizationCard from "@/components/settings/organizations";
+import SubscriptionCard from "@/components/settings/subscription";
+import { UsageCard } from "@/components/settings/usage";
+import { QuickActions } from "@/components/settings/quick-actions";
 
 const Page = () => {
-	const { data: activeOrganization } = authClient.useActiveOrganization();
-	const { data: session } = authClient.useSession();
-	const [notes] = useState<Note[]>([]);
+	const { isAdmin, isLoading, hasError, sessionError, orgError } =
+		useAuthState();
 
-	const user = session?.user;
-	const members = activeOrganization?.members;
-	const maxUsers = 100;
+	// Handle errors
+	if (hasError) {
+		return (
+			<div className="p-6">
+				<div className="text-center py-12">
+					<div className="text-red-500 mb-4">
+						<h2 className="text-xl font-semibold">
+							Error Loading Settings
+						</h2>
+						<p className="text-sm mt-2">
+							{sessionError?.message ||
+								orgError?.message ||
+								"An error occurred"}
+						</p>
+					</div>
+				</div>
+			</div>
+		);
+	}
 
-	if (user?.role !== "admin") {
+	// Show loading state
+	if (isLoading) {
+		return (
+			<div className="p-6">
+				<div className="text-center py-12">
+					<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+					<p className="mt-4 text-muted-foreground">Loading...</p>
+				</div>
+			</div>
+		);
+	}
+
+	// Check admin access
+	if (!isAdmin) {
 		return (
 			<div className="p-6">
 				<div className="text-center py-12">
@@ -34,38 +61,6 @@ const Page = () => {
 		);
 	}
 
-	const tenantNotes = notes.filter(
-		(note) => note.organizationId === activeOrganization?.id
-	);
-
-	const getSubscriptionFeatures = (subscription: string) => {
-		switch (subscription) {
-			case "enterprise":
-				return [
-					"Unlimited users",
-					"1000 notes",
-					"Priority support",
-					"Advanced analytics",
-					"Custom integrations",
-				];
-			case "pro":
-				return [
-					"25 users",
-					"500 notes",
-					"Email support",
-					"Team collaboration",
-					"API access",
-				];
-			default:
-				return [
-					"5 users",
-					"50 notes",
-					"Basic support",
-					"Essential features",
-				];
-		}
-	};
-
 	return (
 		<div className="p-6 space-y-6">
 			{/* Header */}
@@ -76,151 +71,17 @@ const Page = () => {
 				</p>
 			</div>
 
-			{/* Organization Info */}
-			<OrganizationCard
-				activeOrganization={activeOrganization as Organization}
-			/>
+			{/* Organization Info - Components now use their own hooks */}
+			<OrganizationCard />
 
 			{/* Usage & Limits */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						<Users className="w-5 h-5" />
-						Usage & Limits
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-6">
-					<div className="space-y-2">
-						<div className="flex justify-between text-sm">
-							<span>Users</span>
-							<span className="font-medium">
-								{members?.length} / {maxUsers}
-							</span>
-						</div>
-						<Progress
-							value={
-								((members?.length || 0) / (maxUsers || 1)) * 100
-							}
-							className="h-2"
-						/>
-					</div>
-
-					<div className="space-y-2">
-						<div className="flex justify-between text-sm">
-							<span>Notes</span>
-							<span className="font-medium">
-								{tenantNotes.length} /{" "}
-								{activeOrganization?.maxNotes}
-							</span>
-						</div>
-						<Progress
-							value={
-								(tenantNotes.length /
-									(activeOrganization?.maxNotes || 1)) *
-								100
-							}
-							className="h-2"
-						/>
-					</div>
-				</CardContent>
-			</Card>
+			<UsageCard />
 
 			{/* Subscription Details */}
-			{/* <Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						{activeOrganization &&
-							getSubscriptionIcon(currentTenant.subscription)}
-						Subscription Plan
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
-					<div className="flex items-center justify-between">
-						<div>
-							<h3 className="text-lg font-semibold capitalize">
-								{currentTenant?.subscription} Plan
-							</h3>
-							<p className="text-muted-foreground">
-								Perfect for{" "}
-								{currentTenant?.subscription === "enterprise"
-									? "large organizations"
-									: currentTenant?.subscription === "pro"
-									? "growing teams"
-									: "small teams"}
-							</p>
-						</div>
-						<Button variant="outline" disabled>
-							{currentTenant?.subscription === "enterprise"
-								? "Contact Sales"
-								: "Upgrade Plan"}
-						</Button>
-					</div>
-
-					<div className="border-t pt-4">
-						<h4 className="font-medium mb-3">Features included:</h4>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-							{currentTenant &&
-								getSubscriptionFeatures(
-									currentTenant.subscription
-								).map((feature, index) => (
-									<div
-										key={index}
-										className="flex items-center gap-2 text-sm"
-									>
-										<div className="w-1.5 h-1.5 rounded-full bg-primary" />
-										{feature}
-									</div>
-								))}
-						</div>
-					</div>
-				</CardContent>
-			</Card> */}
+			<SubscriptionCard />
 
 			{/* Quick Actions */}
-			<Card>
-				<CardHeader>
-					<CardTitle>Quick Actions</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<Button
-							variant="outline"
-							className="justify-start h-auto p-4"
-							disabled
-						>
-							<div className="flex items-center gap-3">
-								<Users className="w-5 h-5" />
-								<div className="text-left">
-									<div className="font-medium">
-										Invite Team Members
-									</div>
-									<div className="text-sm text-muted-foreground">
-										Add new users to your organization
-									</div>
-								</div>
-							</div>
-						</Button>
-
-						<Button
-							variant="outline"
-							className="justify-start h-auto p-4"
-							disabled
-						>
-							<div className="flex items-center gap-3">
-								<FileText className="w-5 h-5" />
-								<div className="text-left">
-									<div className="font-medium">
-										Export Data
-									</div>
-									<div className="text-sm text-muted-foreground">
-										Download your notes and data
-									</div>
-								</div>
-							</div>
-						</Button>
-					</div>
-				</CardContent>
-			</Card>
+			<QuickActions />
 		</div>
 	);
 };

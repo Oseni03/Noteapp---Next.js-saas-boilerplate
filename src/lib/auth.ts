@@ -36,7 +36,7 @@ export const auth = betterAuth({
 							type: "number",
 							input: true,
 							required: false,
-							defaultValue: 5,
+							defaultValue: 3,
 						},
 						maxNotes: {
 							type: "number",

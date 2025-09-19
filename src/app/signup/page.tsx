@@ -11,17 +11,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import {
-	FileText,
-	ArrowLeft,
-	CheckCircle,
-	Building2,
-	Zap,
-	Crown,
-	Loader2,
-} from "lucide-react";
+import { FileText, ArrowLeft, Loader2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -35,43 +26,8 @@ const Signup = () => {
 		company: "",
 		agreeTerms: false,
 	});
-	const [selectedPlan, setSelectedPlan] = useState("free");
 	const [loading, setIsLoading] = useState(false);
 	const router = useRouter();
-
-	const plans = [
-		{
-			id: "free",
-			name: "Free",
-			price: "$0",
-			period: "/month",
-			maxUsers: 5,
-			maxNotes: 50,
-			icon: <Building2 className="w-4 h-4" />,
-			features: ["5 users", "50 notes", "Basic support"],
-		},
-		{
-			id: "pro",
-			name: "Pro",
-			price: "$19",
-			period: "/month",
-			maxUsers: 25,
-			maxNotes: 500,
-			icon: <Zap className="w-4 h-4" />,
-			features: ["25 users", "500 notes", "Email support", "API access"],
-			popular: true,
-		},
-		{
-			id: "enterprise",
-			name: "Enterprise",
-			price: "Custom",
-			period: "",
-			maxUsers: 100,
-			maxNotes: 1000,
-			icon: <Crown className="w-4 h-4" />,
-			features: ["Unlimited users", "1000 notes", "Priority support"],
-		},
-	];
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
@@ -82,20 +38,11 @@ const Signup = () => {
 		e.preventDefault();
 		setIsLoading(true);
 
-		const plan = plans.find((plan) => plan.id == selectedPlan);
-		if (!plan) {
-			toast.error("No plan selected");
-			return;
-		}
-
 		const { success, message } = await signUp({
 			email: formData.email,
 			password: formData.password,
 			username: formData.name,
 			company: formData.company,
-			maxNotes: plan.maxNotes,
-			maxUsers: plan.maxUsers,
-			subscription: plan.id,
 		});
 
 		if (success) {
@@ -138,88 +85,6 @@ const Signup = () => {
 				</div>
 
 				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-					{/* Plan Selection */}
-					<div className="space-y-6">
-						<div>
-							<h2 className="text-xl font-semibold mb-4">
-								Choose your plan
-							</h2>
-							<div className="space-y-3">
-								{plans.map((plan) => (
-									<Card
-										key={plan.id}
-										className={`cursor-pointer transition-all hover:shadow-md ${
-											selectedPlan === plan.id
-												? "ring-2 ring-primary"
-												: ""
-										}`}
-										onClick={() => setSelectedPlan(plan.id)}
-									>
-										<CardContent className="p-4">
-											<div className="flex items-center justify-between">
-												<div className="flex items-center gap-3">
-													<div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-														{plan.icon}
-													</div>
-													<div>
-														<div className="flex items-center gap-2">
-															<span className="font-medium">
-																{plan.name}
-															</span>
-															{plan.popular && (
-																<Badge
-																	variant="secondary"
-																	className="text-xs"
-																>
-																	Popular
-																</Badge>
-															)}
-														</div>
-														<div className="text-sm text-muted-foreground">
-															<span className="font-medium">
-																{plan.price}
-															</span>
-															<span>
-																{plan.period}
-															</span>
-														</div>
-													</div>
-												</div>
-												<div
-													className={`w-4 h-4 rounded-full border-2 ${
-														selectedPlan === plan.id
-															? "bg-primary border-primary"
-															: "border-muted-foreground"
-													}`}
-												/>
-											</div>
-											<div className="mt-3 ml-11">
-												<div className="flex flex-wrap gap-2">
-													{plan.features
-														.slice(0, 3)
-														.map(
-															(
-																feature,
-																index
-															) => (
-																<div
-																	key={index}
-																	className="flex items-center gap-1 text-xs text-muted-foreground"
-																>
-																	<CheckCircle className="w-3 h-3 text-success" />
-																	{feature}
-																</div>
-															)
-														)}
-												</div>
-											</div>
-										</CardContent>
-									</Card>
-								))}
-							</div>
-						</div>
-					</div>
-
 					{/* Signup Form */}
 					<div>
 						<Card>

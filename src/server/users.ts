@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import slugify from "@sindresorhus/slugify";
+import { getPlan } from "@/lib/utils";
 
 export const getCurrentUser = async () => {
 	const session = await auth.api.getSession({
@@ -57,17 +58,11 @@ export const signUp = async ({
 	password,
 	username,
 	company,
-	maxUsers,
-	maxNotes,
-	subscription,
 }: {
 	email: string;
 	password: string;
 	username: string;
 	company: string;
-	maxUsers: number;
-	maxNotes: number;
-	subscription: string;
 }) => {
 	try {
 		const { user } = await auth.api.signUpEmail({
@@ -83,9 +78,6 @@ export const signUp = async ({
 				name: company,
 				slug: slugify(company),
 				userId: user.id,
-				maxUsers,
-				maxNotes,
-				subscription,
 			},
 		});
 
