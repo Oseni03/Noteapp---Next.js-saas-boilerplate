@@ -84,137 +84,121 @@ const Signup = () => {
 					</p>
 				</div>
 
-				<div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-					{/* Signup Form */}
-					<div>
-						<Card>
-							<CardHeader>
-								<CardTitle>Account Details</CardTitle>
-								<CardDescription>
-									Fill in your information to get started
-								</CardDescription>
-							</CardHeader>
-							<CardContent>
-								<form
-									onSubmit={handleSubmit}
-									className="space-y-4"
-								>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div className="space-y-2">
-											<Label htmlFor="name">
-												Full Name
-											</Label>
-											<Input
-												id="name"
-												name="name"
-												placeholder="John Doe"
-												value={formData.name}
-												onChange={handleInputChange}
-												required
-											/>
-										</div>
-										<div className="space-y-2">
-											<Label htmlFor="company">
-												Company Name
-											</Label>
-											<Input
-												id="company"
-												name="company"
-												placeholder="Acme Corp"
-												value={formData.company}
-												onChange={handleInputChange}
-												required
-											/>
-										</div>
-									</div>
+				{/* Signup Form */}
+				<div>
+					<Card>
+						<CardHeader>
+							<CardTitle>Account Details</CardTitle>
+							<CardDescription>
+								Fill in your information to get started
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<form onSubmit={handleSubmit} className="space-y-4">
+								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 									<div className="space-y-2">
-										<Label htmlFor="email">
-											Email Address
-										</Label>
+										<Label htmlFor="name">Full Name</Label>
 										<Input
-											id="email"
-											name="email"
-											type="email"
-											placeholder="john@acme.com"
-											value={formData.email}
+											id="name"
+											name="name"
+											placeholder="John Doe"
+											value={formData.name}
 											onChange={handleInputChange}
 											required
 										/>
 									</div>
 									<div className="space-y-2">
-										<Label htmlFor="password">
-											Password
+										<Label htmlFor="company">
+											Company Name
 										</Label>
 										<Input
-											id="password"
-											name="password"
-											type="password"
-											placeholder="Create a strong password"
-											value={formData.password}
+											id="company"
+											name="company"
+											placeholder="Acme Corp"
+											value={formData.company}
 											onChange={handleInputChange}
 											required
 										/>
 									</div>
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="email">Email Address</Label>
+									<Input
+										id="email"
+										name="email"
+										type="email"
+										placeholder="john@acme.com"
+										value={formData.email}
+										onChange={handleInputChange}
+										required
+									/>
+								</div>
+								<div className="space-y-2">
+									<Label htmlFor="password">Password</Label>
+									<Input
+										id="password"
+										name="password"
+										type="password"
+										placeholder="Create a strong password"
+										value={formData.password}
+										onChange={handleInputChange}
+										required
+									/>
+								</div>
 
-									<div className="flex items-center space-x-2">
-										<Switch
-											id="terms"
-											checked={formData.agreeTerms}
-											onCheckedChange={(checked) =>
-												setFormData((prev) => ({
-													...prev,
-													agreeTerms: checked,
-												}))
-											}
-										/>
-										<Label
-											htmlFor="terms"
-											className="text-sm"
-										>
-											I agree to the{" "}
-											<Link
-												href="#"
-												className="text-primary hover:underline"
-											>
-												Terms of Service
-											</Link>{" "}
-											and{" "}
-											<Link
-												href="#"
-												className="text-primary hover:underline"
-											>
-												Privacy Policy
-											</Link>
-										</Label>
-									</div>
-
-									<Button
-										type="submit"
-										className="w-full"
-										disabled={
-											!formData.agreeTerms || loading
+								<div className="flex items-center space-x-2">
+									<Switch
+										id="terms"
+										checked={formData.agreeTerms}
+										onCheckedChange={(checked) =>
+											setFormData((prev) => ({
+												...prev,
+												agreeTerms: checked,
+											}))
 										}
-									>
-										Start Free Trial{" "}
-										{loading && (
-											<Loader2 className="size-4 animate-spin" />
-										)}
-									</Button>
-								</form>
-							</CardContent>
-						</Card>
+									/>
+									<Label htmlFor="terms" className="text-sm">
+										I agree to the{" "}
+										<Link
+											href="#"
+											className="text-primary hover:underline"
+										>
+											Terms of Service
+										</Link>{" "}
+										and{" "}
+										<Link
+											href="#"
+											className="text-primary hover:underline"
+										>
+											Privacy Policy
+										</Link>
+									</Label>
+								</div>
 
-						<div className="text-center text-sm mt-6">
-							<span className="text-muted-foreground">
-								Already have an account?{" "}
-							</span>
-							<Link
-								href="/login"
-								className="text-primary hover:underline font-medium"
-							>
-								Sign in
-							</Link>
-						</div>
+								<Button
+									type="submit"
+									className="w-full"
+									disabled={!formData.agreeTerms || loading}
+								>
+									Start Free Trial{" "}
+									{loading && (
+										<Loader2 className="size-4 animate-spin" />
+									)}
+								</Button>
+							</form>
+						</CardContent>
+					</Card>
+
+					<div className="text-center text-sm mt-6">
+						<span className="text-muted-foreground">
+							Already have an account?{" "}
+						</span>
+						<Link
+							href="/login"
+							className="text-primary hover:underline font-medium"
+						>
+							Sign in
+						</Link>
 					</div>
 				</div>
 			</div>

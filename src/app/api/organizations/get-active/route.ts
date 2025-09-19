@@ -8,6 +8,22 @@ export async function GET() {
 			headers: await headers(),
 		});
 
+		if (!data) {
+			const organizations = await auth.api.listOrganizations({
+				headers: await headers(),
+			});
+			const active = await auth.api.setActiveOrganization({
+				body: {
+					organizationId: organizations[0].id,
+				},
+			});
+			return NextResponse.json({
+				success: true,
+				message: "Organization retrieved successfully",
+				data: active,
+			});
+		}
+
 		return NextResponse.json({
 			success: true,
 			message: "Organization retrieved successfully",
