@@ -8,6 +8,14 @@ export interface User {
 	name: string;
 	image?: string | null | undefined;
 }
+
+export interface Member {
+	id: string;
+	organizationId: string;
+	userId: string;
+	role: string;
+	createdAt: Date;
+}
 export interface Organization {
 	id: string;
 	name: string;
@@ -17,6 +25,7 @@ export interface Organization {
 	maxNotes?: number;
 	createdAt: Date;
 	logo?: string | null;
+	members: Member[];
 	// metadata?: any;
 }
 
@@ -30,4 +39,5 @@ export interface Note {
 	isPublic: boolean;
 	createdAt: Date;
 	updatedAt: Date;
+	author: User;
 }

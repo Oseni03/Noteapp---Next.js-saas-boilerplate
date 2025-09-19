@@ -5,11 +5,11 @@ import { prisma } from "@/lib/prisma";
 // GET /api/notes/[id] - Get a specific note
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	return withAuth(request, async (request, currentUser) => {
 		try {
-			const noteId = params.id;
+			const { id: noteId } = await params;
 
 			const note = await prisma.note.findFirst({
 				where: {
@@ -59,7 +59,7 @@ export async function GET(
 // PUT /api/notes/[id] - Update a specific note
 export async function PUT(
 	request: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	return withAuth(request, async (request, currentUser) => {
 		try {
@@ -146,7 +146,7 @@ export async function PUT(
 // DELETE /api/notes/[id] - Delete a specific note
 export async function DELETE(
 	request: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: { params: Promise<{ id: string }> }
 ) {
 	return withAuth(request, async (request, currentUser) => {
 		try {

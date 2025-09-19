@@ -9,9 +9,6 @@ import { getActiveOrganization } from "@/server/organizations";
 export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
-		sendResetPassword: async ({ user, url }) => {
-			console.log("Reset password URL:", url);
-		},
 		requireEmailVerification: false,
 	},
 	database: prismaAdapter(prisma, {

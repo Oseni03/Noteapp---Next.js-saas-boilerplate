@@ -10,7 +10,22 @@ export const authClient = createAuthClient({
 	baseURL: "http://localhost:3000",
 	plugins: [
 		organizationClient({
-			schema: inferOrgAdditionalFields<typeof auth>(),
+			schema: inferOrgAdditionalFields({
+				organization: {
+					additionalFields: {
+						maxUsers: {
+							type: "number",
+						},
+						maxNotes: {
+							type: "number",
+						},
+						subscription: {
+							type: "string",
+						},
+					},
+				},
+			}),
+			// schema: inferOrgAdditionalFields<typeof auth>(),
 		}),
 		customSessionClient<typeof auth>(),
 	],

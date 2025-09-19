@@ -9,8 +9,7 @@ import { UsageCard } from "@/components/settings/usage";
 import { QuickActions } from "@/components/settings/quick-actions";
 
 const Page = () => {
-	const { isAdmin, isLoading, hasError, sessionError, orgError } =
-		useAuthState();
+	const { isAdmin, isLoading, hasError, sessionError } = useAuthState();
 
 	// Handle errors
 	if (hasError) {
@@ -22,9 +21,7 @@ const Page = () => {
 							Error Loading Settings
 						</h2>
 						<p className="text-sm mt-2">
-							{sessionError?.message ||
-								orgError?.message ||
-								"An error occurred"}
+							{sessionError?.message || "An error occurred"}
 						</p>
 					</div>
 				</div>

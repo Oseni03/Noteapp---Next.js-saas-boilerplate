@@ -24,6 +24,7 @@ const Login = () => {
 	const router = useRouter();
 
 	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
 		setIsLoading(true);
 
 		const { success, message } = await signIn(email, password);

@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 export const addMember = async (
 	organizationId: string,
 	userId: string,
-	role: "owner" | "admin" | "member" | ("owner" | "admin" | "member")[]
+	role: "member" | "admin" | ("member" | "admin")[]
 ) => {
 	try {
 		await auth.api.addMember({

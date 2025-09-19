@@ -28,18 +28,32 @@ import {
 	DialogTitle,
 } from "./ui/dialog";
 import { CreateOrganizationForm } from "./forms/create-organization-form";
+import { Organization } from "@/types";
 
 export function TeamSwitcher() {
 	const { isMobile } = useSidebar();
 	const { data: organizations } = authClient.useListOrganizations();
-	const { data: activeOrganization } = authClient.useActiveOrganization();
+	const [activeOrganization, setActiveOrganization] =
+		React.useState<Organization | null>(null);
 	const [dialogOpen, setDialogOpen] = React.useState(false);
 
 	React.useEffect(() => {
-		if (!activeOrganization && organizations && organizations?.length > 0) {
-			handleChangeOrganization(organizations[0].id);
-		}
-	}, [activeOrganization, organizations]);
+		const getActiveOrganization = async () => {
+			try {
+				const response = await fetch("/api/organizations/get-active");
+
+				const result = await response.json();
+
+				if (result.success) {
+					setActiveOrganization(result.data);
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		getActiveOrganization();
+	}, []);
 
 	const handleChangeOrganization = async (organizationId: string) => {
 		try {

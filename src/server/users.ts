@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import slugify from "@sindresorhus/slugify";
-import { getPlan } from "@/lib/utils";
 
 export const getCurrentUser = async () => {
 	const session = await auth.api.getSession({

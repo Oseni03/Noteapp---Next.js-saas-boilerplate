@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { withAuth } from "@/lib/middleware";
 import { prisma } from "@/lib/prisma";
+import { getOrganizationById } from "@/server/organizations";
 
 // GET /api/notes - List all notes for the authenticated user's organization
 export async function GET(request: NextRequest) {
@@ -79,7 +80,18 @@ export async function POST(request: NextRequest) {
 				);
 			}
 
-			if (currentUser.subscription === "free") {
+			const activeOrganization = await getOrganizationById(
+				currentUser.organizationId
+			);
+
+			if (!activeOrganization) {
+				return NextResponse.json(
+					{ error: "Tenant not found" },
+					{ status: 404 }
+				);
+			}
+
+			if (activeOrganization?.subscription === "free") {
 				const userNotesCount = await prisma.note.count({
 					where: {
 						authorId: currentUser.id,
@@ -87,10 +99,11 @@ export async function POST(request: NextRequest) {
 					},
 				});
 
-				if (userNotesCount >= 10) {
+				if (userNotesCount >= 3) {
 					return NextResponse.json(
 						{
-							error: "Free plan limited to 10 notes. Upgrade to Pro for unlimited notes.",
+							error: "Free plan limited to 3 notes. Upgrade to Pro for unlimited notes.",
+							message: "Upgrade to Pro",
 						},
 						{ status: 403 }
 					);

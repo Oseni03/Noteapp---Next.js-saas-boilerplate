@@ -18,10 +18,12 @@ import { Plus, Search, Edit, Trash2, Tag, Calendar, User } from "lucide-react";
 import { format } from "date-fns";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { Note } from "@prisma/client";
+import { Note } from "@/types";
+import { Organization } from "@/types";
 
 const Page = () => {
-	const { data: activeOrganization } = authClient.useActiveOrganization();
+	const [activeOrganization, setActiveOrganization] =
+		useState<Organization | null>(null);
 	const { data: session } = authClient.useSession();
 
 	const user = session?.user;
@@ -35,6 +37,24 @@ const Page = () => {
 		tags: "",
 		isPublic: true,
 	});
+
+	useEffect(() => {
+		const getActiveOrganization = async () => {
+			try {
+				const response = await fetch("/api/organizations/get-active");
+
+				const result = await response.json();
+
+				if (result.success) {
+					setActiveOrganization(result.data);
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		getActiveOrganization();
+	}, []);
 
 	const tenantNotes = useMemo(() => {
 		return notes.filter(
@@ -64,7 +84,7 @@ const Page = () => {
 				setNotes(notes);
 			} catch (error: unknown) {
 				console.log("Error getting notes", error);
-				toast.info(error?.message || "Error getting notes");
+				toast.info("Error getting notes");
 			}
 		};
 

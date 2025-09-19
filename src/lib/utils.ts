@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
-import { Building2, Crown, Zap } from "lucide-react";
+import { Building2, Zap } from "lucide-react";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {

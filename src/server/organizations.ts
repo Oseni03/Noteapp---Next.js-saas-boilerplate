@@ -65,3 +65,23 @@ export async function getOrganizationBySlug(slug: string) {
 		return null;
 	}
 }
+
+export async function getOrganizationById(orgId: string) {
+	try {
+		const organization = await prisma.organization.findUnique({
+			where: { id: orgId },
+			include: {
+				members: {
+					include: {
+						user: true,
+					},
+				},
+			},
+		});
+
+		return organization;
+	} catch (error) {
+		console.error(error);
+		return null;
+	}
+}

@@ -27,7 +27,7 @@ import { UpdateOrganizationForm } from "../forms/update-organization-form";
 import { toast } from "sonner";
 import { useAuthState } from "@/hooks/use-auth";
 import { Organization } from "@/types";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent } from "../ui/card";
 
 const OrganizationCard = () => {
 	const { activeOrganization, isLoading: orgLoading } = useAuthState();
