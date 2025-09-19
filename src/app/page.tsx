@@ -13,6 +13,7 @@ import {
 	ArrowRight,
 	Building2,
 } from "lucide-react";
+import { SUBSCRIPTION_PLANS } from "@/lib/utils";
 
 const Page = () => {
 	const features = [
@@ -39,53 +40,6 @@ const Page = () => {
 			title: "Lightning Fast",
 			description:
 				"Built for performance with instant search and real-time collaboration.",
-		},
-	];
-
-	const plans = [
-		{
-			name: "Free",
-			price: "$0",
-			period: "/month",
-			description: "Perfect for small teams getting started",
-			features: [
-				"5 users",
-				"50 notes",
-				"Basic support",
-				"Essential features",
-			],
-			icon: <Building2 className="w-5 h-5" />,
-			popular: false,
-		},
-		{
-			name: "Pro",
-			price: "$19",
-			period: "/month",
-			description: "Ideal for growing teams and businesses",
-			features: [
-				"25 users",
-				"500 notes",
-				"Email support",
-				"Team collaboration",
-				"API access",
-			],
-			icon: <Zap className="w-5 h-5" />,
-			popular: true,
-		},
-		{
-			name: "Enterprise",
-			price: "Custom",
-			period: "",
-			description: "Advanced features for large organizations",
-			features: [
-				"Unlimited users",
-				"1000 notes",
-				"Priority support",
-				"Advanced analytics",
-				"Custom integrations",
-			],
-			icon: <Crown className="w-5 h-5" />,
-			popular: false,
 		},
 	];
 
@@ -191,8 +145,8 @@ const Page = () => {
 							grow.
 						</p>
 					</div>
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-						{plans.map((plan, index) => (
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-3 mx-auto max-w-3xl justify-items-center items-center">
+						{SUBSCRIPTION_PLANS.map((plan, index) => (
 							<Card
 								key={index}
 								className={`relative hover:shadow-lg transition-shadow ${
@@ -206,7 +160,7 @@ const Page = () => {
 								)}
 								<CardContent className="p-8 text-center">
 									<div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4 text-primary">
-										{plan.icon}
+										<plan.icon className="w-5 h-5" />
 									</div>
 									<h3 className="text-2xl font-bold mb-2">
 										{plan.name}
