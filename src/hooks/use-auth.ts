@@ -15,6 +15,7 @@ export function useAuthState() {
 
 	const user = session?.user;
 	const members = data?.members;
+	const invitations = data?.invitations;
 
 	const isAdmin = !!members?.find(
 		(member) => member.userId == user?.id && member.role == "admin"
@@ -27,6 +28,7 @@ export function useAuthState() {
 			user,
 			activeOrganization,
 			members,
+			invitations,
 
 			// Loading states
 			isLoading: isSessionLoading,
@@ -64,6 +66,7 @@ export function useAuthState() {
 			user,
 			isAdmin,
 			members,
+			invitations,
 		]
 	);
 }

@@ -13,7 +13,6 @@ import {
 	SidebarHeader,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
 
 // This is sample data.
 const menuItems = [

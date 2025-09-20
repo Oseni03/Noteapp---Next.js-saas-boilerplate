@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export async function POST(request: NextRequest) {
 	try {
@@ -22,6 +23,7 @@ export async function POST(request: NextRequest) {
 			body: {
 				organizationId: body.tenantId,
 			},
+			headers: await headers(),
 		});
 
 		return NextResponse.json({

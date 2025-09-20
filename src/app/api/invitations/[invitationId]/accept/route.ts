@@ -1,32 +1,25 @@
-import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function POST(
+export async function GET(
 	request: NextRequest,
 	{ params }: { params: Promise<{ invitationId: string }> }
 ) {
-	try {
-		const { invitationId } = await params;
+	const { invitationId } = await params;
 
+	try {
 		const data = await auth.api.acceptInvitation({
 			body: {
 				invitationId,
 			},
+			headers: await headers(),
 		});
 
-		return NextResponse.json({
-			success: true,
-			message: "Invitation accepted successfully",
-			data,
-		});
+		console.log(data);
+		return NextResponse.redirect(new URL("/dashboard", request.url));
 	} catch (error) {
-		return NextResponse.json(
-			{
-				success: false,
-				error: error || { message: "Failed to accept invitation" },
-				data: null,
-			},
-			{ status: 500 }
-		);
+		console.error(error);
+		return NextResponse.redirect(new URL("/dashboard", request.url));
 	}
 }

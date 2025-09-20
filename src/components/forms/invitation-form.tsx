@@ -27,9 +27,10 @@ import {
 	SelectValue,
 } from "../ui/select";
 import { DialogFooter } from "../ui/dialog";
+import { authClient } from "@/lib/auth-client";
 
 const formSchema = z.object({
-	email: z.string().email(),
+	email: z.email(),
 	role: z.enum(["admin", "member"]),
 });
 
@@ -53,28 +54,22 @@ export function InvitationForm({
 			toast.loading("Sending invite...");
 			setIsLoading(true);
 
-			const response = await fetch(
-				`/api/tenants/${organization.slug}/invitations`,
-				{
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						email: values.email,
-						role: values.role,
-						resend: true,
-					}),
-				}
-			);
+			const { error } = await authClient.organization.inviteMember({
+				email: values.email,
+				role: values.role,
+				organizationId: organization.id,
+				resend: true,
+			});
 
-			const result = await response.json();
-
-			if (result.success) {
+			if (error) {
+				console.error("Error creating invite: ", error);
 				toast.dismiss();
-				toast.success(`${result.message as string}. Check your email`);
+				toast.error(error.message || "Failed to create invitation");
 			} else {
-				console.error("Error:", result.message);
 				toast.dismiss();
-				toast.error(result.message || "Failed to create invitation");
+				toast.success(
+					`Invitation created successfully. Check your email`
+				);
 			}
 		} catch (error) {
 			console.error(error);

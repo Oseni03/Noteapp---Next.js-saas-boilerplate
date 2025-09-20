@@ -46,6 +46,7 @@ export async function DELETE(
 			body: {
 				invitationId,
 			},
+			headers: await headers(),
 		});
 
 		return NextResponse.json({

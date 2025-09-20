@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/server/permissions";
+import { headers } from "next/headers";
 
 // Remove member
 export async function DELETE(
 	request: NextRequest,
-	{ params }: { params: Promise<{ slug: string; memberIdOrEmail: string }> }
+	{ params }: { params: Promise<{ slug: string; memberId: string }> }
 ) {
 	try {
-		const { slug, memberIdOrEmail } = await params;
+		const { slug, memberId } = await params;
 
 		const { success } = await isAdmin();
 
@@ -43,9 +44,10 @@ export async function DELETE(
 
 		const data = await auth.api.removeMember({
 			body: {
-				memberIdOrEmail,
+				memberIdOrEmail: memberId,
 				organizationId: tenant.id,
 			},
+			headers: await headers(),
 		});
 
 		return NextResponse.json({
@@ -68,10 +70,10 @@ export async function DELETE(
 // Update member role
 export async function PATCH(
 	request: NextRequest,
-	{ params }: { params: Promise<{ slug: string; memberIdOrEmail: string }> }
+	{ params }: { params: Promise<{ slug: string; memberId: string }> }
 ) {
 	try {
-		const { slug, memberIdOrEmail } = await params;
+		const { slug, memberId } = await params;
 		const { role } = await request.json();
 
 		if (!role) {
@@ -103,9 +105,10 @@ export async function PATCH(
 		await auth.api.updateMemberRole({
 			body: {
 				role,
-				memberId: memberIdOrEmail,
+				memberId,
 				organizationId: tenant.id,
 			},
+			headers: await headers(),
 		});
 
 		return NextResponse.json({

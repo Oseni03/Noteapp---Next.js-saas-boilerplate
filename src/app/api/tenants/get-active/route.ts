@@ -16,6 +16,7 @@ export async function GET() {
 				body: {
 					organizationId: organizations[0].id,
 				},
+				headers: await headers(),
 			});
 			return NextResponse.json({
 				success: true,

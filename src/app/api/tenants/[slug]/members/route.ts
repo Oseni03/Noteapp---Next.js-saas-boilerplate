@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { headers } from "next/headers";
 
 // List members
 export async function GET(
@@ -56,6 +57,7 @@ export async function GET(
 				...(filterOperator && { filterOperator }),
 				...(filterValue && { filterValue }),
 			},
+			headers: await headers(),
 		});
 
 		return NextResponse.json({
@@ -117,6 +119,7 @@ export async function POST(
 				organizationId: tenant.id,
 				...(teamId && { teamId }),
 			},
+			headers: await headers(),
 		});
 
 		return NextResponse.json({

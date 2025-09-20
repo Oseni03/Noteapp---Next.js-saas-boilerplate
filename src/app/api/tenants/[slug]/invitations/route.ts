@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/server/permissions";
+import { headers } from "next/headers";
 
 // Create invitation
 export async function POST(
@@ -61,6 +62,7 @@ export async function POST(
 				resend,
 				...(teamId && { teamId }),
 			},
+			headers: await headers(),
 		});
 
 		return NextResponse.json({
@@ -109,6 +111,7 @@ export async function GET(
 			query: {
 				organizationId: tenant.id,
 			},
+			headers: await headers(),
 		});
 
 		return NextResponse.json({

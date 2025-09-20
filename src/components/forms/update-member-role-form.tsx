@@ -36,9 +36,11 @@ const formSchema = z.object({
 export function UpdateMemberRoleForm({
 	organization,
 	defaultValues,
+	memberId,
 }: {
 	organization: Organization;
 	defaultValues: z.infer<typeof formSchema>;
+	memberId: string;
 }) {
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -53,7 +55,7 @@ export function UpdateMemberRoleForm({
 			setIsLoading(true);
 
 			const response = await fetch(
-				`/api/tenants/${organization.slug}/members/${values.email}`,
+				`/api/tenants/${organization.slug}/members/${memberId}`,
 				{
 					method: "PATCH",
 					headers: { "Content-Type": "application/json" },

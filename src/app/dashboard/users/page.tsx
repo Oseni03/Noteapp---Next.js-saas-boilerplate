@@ -5,7 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Mail, Calendar, Shield, Users } from "lucide-react";
+import {
+	Mail,
+	Calendar,
+	Shield,
+	Users,
+	Clock,
+	User,
+	Send,
+	X,
+} from "lucide-react";
 import { format } from "date-fns";
 import {
 	Dialog,
@@ -32,7 +41,8 @@ import {
 import { toast } from "sonner";
 
 const Page = () => {
-	const { activeOrganization, members, user, isAdmin } = useAuthState();
+	const { activeOrganization, members, user, isAdmin, invitations } =
+		useAuthState();
 
 	if (!isAdmin) {
 		return (
@@ -120,7 +130,7 @@ const Page = () => {
 			</Dialog>
 
 			{/* Stats Cards */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 				<Card>
 					<CardHeader className="pb-2">
 						<CardTitle className="text-sm font-medium text-muted-foreground">
@@ -168,7 +178,174 @@ const Page = () => {
 						</div>
 					</CardContent>
 				</Card>
+
+				<Card>
+					<CardHeader className="pb-2">
+						<CardTitle className="text-sm font-medium text-muted-foreground">
+							Pending Invites
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="text-2xl font-bold">
+							{invitations?.filter(
+								(inv) => inv.status === "pending"
+							).length || 0}
+						</div>
+						<div className="text-xs text-muted-foreground">
+							Awaiting response
+						</div>
+					</CardContent>
+				</Card>
 			</div>
+
+			{/* Pending Invitations */}
+			{invitations &&
+				invitations?.filter((inv) => inv.status === "pending").length >
+					0 && (
+					<div className="space-y-4">
+						<h2 className="text-lg font-semibold">
+							Pending Invitations
+						</h2>
+						<div className="grid gap-4">
+							{invitations
+								?.filter((inv) => inv.status === "pending")
+								.map((invitation) => (
+									<Card key={invitation.id}>
+										<CardContent className="p-6">
+											<div className="flex items-center justify-between">
+												<div className="flex items-center gap-4">
+													<Avatar className="h-12 w-12">
+														<AvatarFallback className="bg-orange-100 text-orange-600 font-medium">
+															{invitation.email
+																.split("@")[0]
+																.slice(0, 2)
+																.toUpperCase()}
+														</AvatarFallback>
+													</Avatar>
+													<div>
+														<div className="flex items-center gap-2">
+															<h3 className="font-medium">
+																{
+																	invitation.email
+																}
+															</h3>
+															<Badge
+																variant="outline"
+																className="text-orange-600 border-orange-200"
+															>
+																{
+																	invitation.role
+																}
+															</Badge>
+															<Badge
+																variant="secondary"
+																className="text-xs bg-orange-50 text-orange-600"
+															>
+																Pending
+															</Badge>
+														</div>
+														<div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+															<div className="flex items-center gap-1">
+																<Clock className="w-3 h-3" />
+																Expires{" "}
+																{format(
+																	invitation.expiresAt,
+																	"MMM dd, yyyy"
+																)}
+															</div>
+															{/* <div className="flex items-center gap-1">
+																<User className="w-3 h-3" />
+																By{" "}
+																{
+																	invitation
+																		.invitedBy
+																		?.name
+																}
+															</div> */}
+														</div>
+													</div>
+												</div>
+												<div className="flex gap-2">
+													<Button
+														variant="outline"
+														size="sm"
+														// onClick={() =>
+														// 	handleResendInvitation(
+														// 		invitation.id
+														// 	)
+														// }
+														disabled={!isAdmin}
+													>
+														<Send className="w-3 h-3 mr-1" />
+														Resend
+													</Button>
+													<AlertDialog>
+														<AlertDialogTrigger
+															asChild
+														>
+															<Button
+																variant="outline"
+																size="sm"
+																disabled={
+																	!isAdmin
+																}
+															>
+																<X className="w-3 h-3 mr-1" />
+																Cancel
+															</Button>
+														</AlertDialogTrigger>
+														<AlertDialogContent>
+															<AlertDialogHeader>
+																<AlertDialogTitle>
+																	Cancel
+																	Invitation?
+																</AlertDialogTitle>
+																<AlertDialogDescription>
+																	This will
+																	cancel the
+																	pending
+																	invitation
+																	for{" "}
+																	<span className="font-medium">
+																		{
+																			invitation.email
+																		}
+																	</span>
+																	. They will
+																	no longer be
+																	able to join
+																	using this
+																	invitation
+																	link.
+																</AlertDialogDescription>
+															</AlertDialogHeader>
+															<AlertDialogFooter>
+																<AlertDialogCancel>
+																	Keep
+																	Invitation
+																</AlertDialogCancel>
+																<AlertDialogAction
+																	// onClick={() =>
+																	// 	handleCancelInvitation(
+																	// 		invitation.id
+																	// 	)
+																	// }
+																	className="bg-red-600 hover:bg-red-700"
+																>
+																	Cancel
+																	Invitation
+																</AlertDialogAction>
+															</AlertDialogFooter>
+														</AlertDialogContent>
+													</AlertDialog>
+												</div>
+											</div>
+										</CardContent>
+									</Card>
+								))}
+						</div>
+					</div>
+				)}
 
 			{/* Users List */}
 			<div className="space-y-4">
@@ -262,6 +439,7 @@ const Page = () => {
 															| "member"
 															| "admin",
 													}}
+													memberId={member.id}
 												/>
 											</DialogContent>
 										</Dialog>
