@@ -41,21 +41,16 @@ const menuItems = [
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	const { data: session } = authClient.useSession();
-	const user = session?.user;
-
-	if (!user) return;
-
 	return (
 		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
 				<TeamSwitcher />
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={menuItems} user={user} />
+				<NavMain items={menuItems} />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={user} />
+				<NavUser />
 			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>

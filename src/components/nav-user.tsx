@@ -27,9 +27,10 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { User } from "@/types";
+import { useAuthState } from "@/hooks/use-auth";
 
-export function NavUser({ user }: { user: User }) {
+export function NavUser() {
+	const { user, isAdmin } = useAuthState();
 	const { isMobile } = useSidebar();
 	const router = useRouter();
 
@@ -113,7 +114,7 @@ export function NavUser({ user }: { user: User }) {
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						{user.role === "admin" && (
+						{isAdmin && (
 							<>
 								<DropdownMenuGroup>
 									<DropdownMenuItem>
