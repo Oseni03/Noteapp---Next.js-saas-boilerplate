@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { DialogFooter } from "../ui/dialog";
 
 const formSchema = z.object({
 	name: z.string().min(2).max(50),
@@ -99,10 +100,14 @@ export function CreateOrganizationForm() {
 					)}
 				/>
 
-				<Button disabled={isLoading} type="submit">
-					Create Tenant
-					{isLoading && <Loader2 className="size-4 animate-spin" />}
-				</Button>
+				<DialogFooter>
+					<Button disabled={isLoading} type="submit">
+						Create Tenant
+						{isLoading && (
+							<Loader2 className="size-4 animate-spin" />
+						)}
+					</Button>
+				</DialogFooter>
 			</form>
 		</Form>
 	);

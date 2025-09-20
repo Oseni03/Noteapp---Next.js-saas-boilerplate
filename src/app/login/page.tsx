@@ -113,65 +113,6 @@ const Login = () => {
 					</CardContent>
 				</Card>
 
-				{/* Demo Accounts */}
-				<Card className="bg-muted/30">
-					<CardHeader>
-						<CardTitle className="text-lg">Demo Accounts</CardTitle>
-						<CardDescription>
-							Try the app with these demo accounts
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="space-y-3">
-						<div className="grid grid-cols-1 gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => router.push("/dashboard")}
-								className="justify-start text-left"
-							>
-								<div>
-									<div className="font-medium">
-										Admin - Acme Corp
-									</div>
-									<div className="text-xs text-muted-foreground">
-										john@acme.com (Enterprise)
-									</div>
-								</div>
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => router.push("/dashboard")}
-								className="justify-start text-left"
-							>
-								<div>
-									<div className="font-medium">
-										Admin - TechStart
-									</div>
-									<div className="text-xs text-muted-foreground">
-										mike@techstart.io (Pro)
-									</div>
-								</div>
-							</Button>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => router.push("/dashboard")}
-								className="justify-start text-left"
-							>
-								<div>
-									<div className="font-medium">
-										Admin - Local Business
-									</div>
-									<div className="text-xs text-muted-foreground">
-										lisa@localbiz.com (Free)
-									</div>
-								</div>
-							</Button>
-						</div>
-					</CardContent>
-				</Card>
-
 				{/* Sign up link */}
 				<div className="text-center text-sm">
 					<span className="text-muted-foreground">

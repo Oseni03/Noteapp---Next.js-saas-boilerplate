@@ -2,7 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+
 import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -17,55 +19,66 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Organization } from "@/types";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../ui/select";
 import { DialogFooter } from "../ui/dialog";
 
 const formSchema = z.object({
-	name: z.string().min(2).max(50),
-	slug: z.string().min(2).max(50),
+	email: z.string().email(),
+	role: z.enum(["admin", "member"]),
 });
 
-export function UpdateOrganizationForm({
+export function UpdateMemberRoleForm({
 	organization,
+	defaultValues,
 }: {
 	organization: Organization;
+	defaultValues: z.infer<typeof formSchema>;
 }) {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
-		defaultValues: {
-			name: organization.name,
-			slug: organization.slug,
-		},
+		defaultValues,
 	});
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		try {
-			toast.loading("Updating Tenants...");
+			toast.loading("Sending invite...");
 			setIsLoading(true);
 
-			const response = await fetch(`/api/tenants/${organization.slug}`, {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					data: { name: values.name, slug: values.slug },
-				}),
-			});
+			const response = await fetch(
+				`/api/tenants/${organization.slug}/members/${values.email}`,
+				{
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						role: values.role,
+					}),
+				}
+			);
 
 			const result = await response.json();
 
 			if (result.success) {
 				toast.dismiss();
-				toast.success(result.message);
+				toast.success(`${result.message as string}.`);
 			} else {
 				console.error("Error:", result.message);
 				toast.dismiss();
-				toast.error(result.message);
+				toast.error(
+					result.error.message || "Failed to update member role"
+				);
 			}
 		} catch (error) {
 			console.error(error);
 			toast.dismiss();
-			toast.error("Failed to update tenant");
+			toast.error("Failed to update member role");
 		} finally {
 			setIsLoading(false);
 		}
@@ -76,12 +89,16 @@ export function UpdateOrganizationForm({
 			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 				<FormField
 					control={form.control}
-					name="name"
+					name="email"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Name</FormLabel>
+							<FormLabel>Email</FormLabel>
 							<FormControl>
-								<Input placeholder="My Tenant" {...field} />
+								<Input
+									placeholder="example@mail.com"
+									{...field}
+									disabled
+								/>
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -90,21 +107,33 @@ export function UpdateOrganizationForm({
 
 				<FormField
 					control={form.control}
-					name="slug"
+					name="role"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Slug</FormLabel>
-							<FormControl>
-								<Input placeholder="my-tenant" {...field} />
-							</FormControl>
+							<Select
+								onValueChange={field.onChange}
+								defaultValue={field.value}
+							>
+								<FormControl>
+									<SelectTrigger>
+										<SelectValue placeholder="Select a verified email to display" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value="member">
+										Member
+									</SelectItem>
+									<SelectItem value="admin">Admin</SelectItem>
+								</SelectContent>
+							</Select>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
-
 				<DialogFooter>
 					<Button disabled={isLoading} type="submit">
-						Update Tenant
+						Update Role
 						{isLoading && (
 							<Loader2 className="size-4 animate-spin" />
 						)}

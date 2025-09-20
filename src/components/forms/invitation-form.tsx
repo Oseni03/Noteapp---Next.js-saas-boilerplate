@@ -19,6 +19,14 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Organization } from "@/types";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "../ui/select";
+import { DialogFooter } from "../ui/dialog";
 
 const formSchema = z.object({
 	email: z.string().email(),
@@ -45,15 +53,18 @@ export function InvitationForm({
 			toast.loading("Sending invite...");
 			setIsLoading(true);
 
-			const response = await fetch(`/api/tenants/${organization.slug}`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					email: values.email,
-					role: values.role,
-					resend: true,
-				}),
-			});
+			const response = await fetch(
+				`/api/tenants/${organization.slug}/invitations`,
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						email: values.email,
+						role: values.role,
+						resend: true,
+					}),
+				}
+			);
 
 			const result = await response.json();
 
@@ -63,7 +74,7 @@ export function InvitationForm({
 			} else {
 				console.error("Error:", result.message);
 				toast.dismiss();
-				toast.error(result.message);
+				toast.error(result.message || "Failed to create invitation");
 			}
 		} catch (error) {
 			console.error(error);
@@ -100,18 +111,34 @@ export function InvitationForm({
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel>Slug</FormLabel>
-							<FormControl>
-								<Input placeholder="member" {...field} />
-							</FormControl>
+							<Select
+								onValueChange={field.onChange}
+								defaultValue={field.value}
+							>
+								<FormControl>
+									<SelectTrigger>
+										<SelectValue placeholder="Select a verified email to display" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value="member">
+										Member
+									</SelectItem>
+									<SelectItem value="admin">Admin</SelectItem>
+								</SelectContent>
+							</Select>
 							<FormMessage />
 						</FormItem>
 					)}
 				/>
-
-				<Button disabled={isLoading} type="submit">
-					Create Invite
-					{isLoading && <Loader2 className="size-4 animate-spin" />}
-				</Button>
+				<DialogFooter>
+					<Button disabled={isLoading} type="submit">
+						Create Invite
+						{isLoading && (
+							<Loader2 className="size-4 animate-spin" />
+						)}
+					</Button>
+				</DialogFooter>
 			</form>
 		</Form>
 	);
