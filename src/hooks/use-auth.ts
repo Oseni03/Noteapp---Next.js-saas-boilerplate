@@ -16,10 +16,9 @@ export function useAuthState() {
 	const user = session?.user;
 	const members = data?.members;
 
-	const isAdmin =
-		members?.find(
-			(member) => member.userId == user?.id && member.role == "admin"
-		) || false;
+	const isAdmin = !!members?.find(
+		(member) => member.userId == user?.id && member.role == "admin"
+	);
 
 	return useMemo(
 		() => ({

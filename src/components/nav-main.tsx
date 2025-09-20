@@ -9,11 +9,10 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
-import { User } from "@/types";
+import { useAuthState } from "@/hooks/use-auth";
 
 export function NavMain({
 	items,
-	user,
 }: {
 	items: {
 		id: string;
@@ -22,8 +21,8 @@ export function NavMain({
 		icon?: LucideIcon;
 		adminOnly: boolean;
 	}[];
-	user: User;
 }) {
+	const { isAdmin } = useAuthState();
 	const router = useRouter();
 	const pathname = usePathname();
 	return (
@@ -31,7 +30,7 @@ export function NavMain({
 			<SidebarGroupLabel>Platform</SidebarGroupLabel>
 			<SidebarMenu>
 				{items.map((item) => {
-					if (item.adminOnly && user?.role !== "admin") return null;
+					if (item.adminOnly && !isAdmin) return null;
 
 					const activeTab = item.url == pathname;
 					return (

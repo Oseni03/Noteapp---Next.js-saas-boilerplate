@@ -27,13 +27,12 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
-import { User } from "@/types";
+import { useAuthState } from "@/hooks/use-auth";
 
-export function NavUser({ user }: { user: User }) {
+export function NavUser() {
+	const { user, isAdmin } = useAuthState();
 	const { isMobile } = useSidebar();
 	const router = useRouter();
-
-	if (!user) return;
 
 	const handleSignOut = async () => {
 		try {
@@ -60,8 +59,8 @@ export function NavUser({ user }: { user: User }) {
 						>
 							<Avatar className="h-8 w-8 rounded-lg">
 								<AvatarImage
-									src={user.image || ""}
-									alt={user.name}
+									src={user?.image || ""}
+									alt={user?.name}
 								/>
 								<AvatarFallback className="rounded-lg">
 									CN
@@ -69,10 +68,10 @@ export function NavUser({ user }: { user: User }) {
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
 								<span className="truncate font-medium">
-									{user.name}
+									{user?.name}
 								</span>
 								<span className="truncate text-xs">
-									{user.email}
+									{user?.email}
 								</span>
 							</div>
 							<ChevronsUpDown className="ml-auto size-4" />
@@ -88,8 +87,8 @@ export function NavUser({ user }: { user: User }) {
 							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 								<Avatar className="h-8 w-8 rounded-lg">
 									<AvatarImage
-										src={user.image || ""}
-										alt={user.name}
+										src={user?.image || ""}
+										alt={user?.name}
 									/>
 									<AvatarFallback className="rounded-lg">
 										CN
@@ -97,10 +96,10 @@ export function NavUser({ user }: { user: User }) {
 								</Avatar>
 								<div className="grid flex-1 text-left text-sm leading-tight">
 									<span className="truncate font-medium">
-										{user.name}
+										{user?.name}
 									</span>
 									<span className="truncate text-xs">
-										{user.email}
+										{user?.email}
 									</span>
 								</div>
 							</div>
@@ -113,7 +112,7 @@ export function NavUser({ user }: { user: User }) {
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						{user.role === "admin" && (
+						{isAdmin && (
 							<>
 								<DropdownMenuGroup>
 									<DropdownMenuItem>
