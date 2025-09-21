@@ -1,0 +1,114 @@
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
+import { z } from "zod";
+
+import { Button } from "@/components/ui/button";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { DialogFooter } from "../ui/dialog";
+
+const formSchema = z.object({
+	name: z.string().min(2).max(50),
+	slug: z.string().min(2).max(50),
+});
+
+export function CreateOrganizationForm() {
+	const [isLoading, setIsLoading] = useState(false);
+
+	const form = useForm<z.infer<typeof formSchema>>({
+		resolver: zodResolver(formSchema),
+		defaultValues: {
+			name: "",
+			slug: "",
+		},
+	});
+
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		try {
+			toast.loading("Creating Tenant...");
+			setIsLoading(true);
+
+			const response = await fetch("/api/tenants", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					name: values.name,
+					slug: values.slug,
+				}),
+			});
+
+			const result = await response.json();
+
+			if (result.success) {
+				toast.dismiss();
+				toast.success(result.message);
+			} else {
+				console.error("Error:", result.message);
+				toast.dismiss();
+				toast.error(result.message);
+			}
+		} catch (error) {
+			console.error(error);
+			toast.dismiss();
+			toast.error("Failed to create tenant");
+		} finally {
+			setIsLoading(false);
+		}
+	}
+
+	return (
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+				<FormField
+					control={form.control}
+					name="name"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Name</FormLabel>
+							<FormControl>
+								<Input placeholder="My Tenant" {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<FormField
+					control={form.control}
+					name="slug"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Slug</FormLabel>
+							<FormControl>
+								<Input placeholder="my-tenant" {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+
+				<DialogFooter>
+					<Button disabled={isLoading} type="submit">
+						Create Tenant
+						{isLoading && (
+							<Loader2 className="size-4 animate-spin" />
+						)}
+					</Button>
+				</DialogFooter>
+			</form>
+		</Form>
+	);
+}
