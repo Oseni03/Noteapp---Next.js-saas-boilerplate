@@ -2,7 +2,6 @@
 
 import { auth } from "@/lib/auth";
 import { isAdmin } from "./permissions";
-import { prisma } from "@/lib/prisma";
 
 export const addMember = async (
 	organizationId: string,
@@ -10,23 +9,27 @@ export const addMember = async (
 	role: "member" | "admin" | ("member" | "admin")[]
 ) => {
 	try {
-		await auth.api.addMember({
+		const data = await auth.api.addMember({
 			body: {
 				userId,
 				organizationId,
 				role,
 			},
 		});
+		return { success: true, data };
 	} catch (error) {
 		console.error(error);
-		throw new Error("Failed to add member.");
+		return { success: false, error };
 	}
 };
 
-export const removeMember = async (memberId: string) => {
-	const admin = await isAdmin();
+export const removeMember = async (
+	organizationId: string,
+	memberId: string
+) => {
+	const { success } = await isAdmin();
 
-	if (!admin) {
+	if (!success) {
 		return {
 			success: false,
 			error: "You are not authorized to remove members.",
@@ -34,17 +37,51 @@ export const removeMember = async (memberId: string) => {
 	}
 
 	try {
-		await prisma.member.delete({ where: { id: memberId } });
+		const data = await auth.api.removeMember({
+			body: {
+				organizationId,
+				memberIdOrEmail: memberId,
+			},
+		});
 
 		return {
 			success: true,
-			error: null,
+			data,
 		};
 	} catch (error) {
 		console.error(error);
 		return {
 			success: false,
-			error: "Failed to remove member.",
+			error,
 		};
 	}
 };
+
+export async function updateMemberRole(
+	memberId: string,
+	organizationId: string,
+	role: "admin" | "member" | ("admin" | "member")[]
+) {
+	try {
+		const { success } = await isAdmin();
+
+		if (!success) {
+			return {
+				success: false,
+				error: "You are not authorized to remove members.",
+			};
+		}
+
+		const result = await auth.api.updateMemberRole({
+			body: {
+				role, // required
+				memberId, // required
+				organizationId,
+			},
+		});
+		return { data: result, success: true };
+	} catch (error) {
+		console.error("Error creating organization: ", error);
+		return { success: false, error };
+	}
+}

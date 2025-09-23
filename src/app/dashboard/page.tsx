@@ -18,10 +18,12 @@ import { Plus, Search, Edit, Trash2, Tag, Calendar, User } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Note } from "@/types";
-import { useAuthState } from "@/hooks/use-auth";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { authClient } from "@/lib/auth-client";
 
 const Page = () => {
-	const { activeOrganization, user } = useAuthState();
+	const { activeOrganization } = useOrganizationStore((state) => state);
+	const { data: session } = authClient.useSession();
 	const [notes, setNotes] = useState<Note[]>([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -32,6 +34,8 @@ const Page = () => {
 		tags: "",
 		isPublic: true,
 	});
+
+	const user = session?.user;
 
 	const tenantNotes = useMemo(() => {
 		return notes.filter((note) => note.tenantId === activeOrganization?.id);

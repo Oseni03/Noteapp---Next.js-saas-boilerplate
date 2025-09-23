@@ -1,5 +1,5 @@
 export interface User {
-	role: string | undefined;
+	role?: string;
 	id: string;
 	createdAt: Date;
 	updatedAt: Date;
@@ -9,12 +9,19 @@ export interface User {
 	image?: string | null | undefined;
 }
 
+export interface MemberUser {
+	email: string;
+	name: string;
+	image?: string;
+}
+
 export interface Member {
 	id: string;
 	organizationId: string;
 	userId: string;
 	role: string;
 	createdAt: Date;
+	user: MemberUser;
 }
 export interface Organization {
 	id: string;
@@ -25,7 +32,6 @@ export interface Organization {
 	maxNotes?: number;
 	createdAt: Date;
 	logo?: string | null;
-	members: Member[];
 	// metadata?: any;
 }
 

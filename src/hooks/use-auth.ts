@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { authClient } from "@/lib/auth-client";
-import { Organization } from "@/types";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 
 export function useAuthState() {
 	const {
@@ -10,25 +10,36 @@ export function useAuthState() {
 		isPending: isSessionLoading,
 		error: sessionError,
 	} = authClient.useSession();
-	const { data } = authClient.useActiveOrganization();
-	const activeOrganization = data as Organization;
+	const { members } = useOrganizationStore((state) => state);
 
 	const user = session?.user;
-	const members = data?.members;
-	const invitations = data?.invitations;
 
 	const isAdmin = !!members?.find(
 		(member) => member.userId == user?.id && member.role == "admin"
 	);
+
+	const updateUserProfile = async (values: {
+		name: string;
+		image?: string;
+	}) => {
+		try {
+			const data = await authClient.updateUser({
+				name: values.name,
+				image: values.image,
+			});
+
+			return data;
+		} catch (error) {
+			console.log("Error updating profile: ", error);
+			return { status: false, message: "Failed to update profile" };
+		}
+	};
 
 	return useMemo(
 		() => ({
 			// Raw data
 			session,
 			user,
-			activeOrganization,
-			members,
-			invitations,
 
 			// Loading states
 			isLoading: isSessionLoading,
@@ -41,32 +52,10 @@ export function useAuthState() {
 			// Computed auth states
 			isAuthenticated: !!user,
 			isAdmin,
-			// isOwner: activeOrganization?.ownerId === user?.id,
-			isMember: members?.some((member) => member.userId === user?.id),
 
-			// Organization stats
-			memberCount: members?.length || 0,
-			adminCount: members?.filter((m) => m.role === "admin").length || 0,
-
-			// User display info
-			userDisplayName: user?.name || user?.email || "Anonymous",
-			userInitials: user?.name
-				? user.name
-						.split(" ")
-						.map((n) => n[0])
-						.join("")
-						.toUpperCase()
-				: user?.email?.[0].toUpperCase() || "?",
+			// Actions
+			updateUserProfile,
 		}),
-		[
-			session,
-			activeOrganization,
-			isSessionLoading,
-			sessionError,
-			user,
-			isAdmin,
-			members,
-			invitations,
-		]
+		[session, isSessionLoading, sessionError, user, isAdmin]
 	);
 }

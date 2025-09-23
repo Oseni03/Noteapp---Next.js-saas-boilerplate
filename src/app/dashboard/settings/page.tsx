@@ -1,12 +1,23 @@
 "use client";
 
 import React from "react";
-import { Shield } from "lucide-react";
+import {
+	Shield,
+	User,
+	Building2,
+	Users2,
+	LineChart,
+	CreditCard,
+	Settings2,
+} from "lucide-react";
 import { useAuthState } from "@/hooks/use-auth";
 import OrganizationCard from "@/components/settings/organizations";
 import SubscriptionCard from "@/components/settings/subscription";
 import { UsageCard } from "@/components/settings/usage";
 import { QuickActions } from "@/components/settings/quick-actions";
+import { UserProfileCard } from "@/components/settings/user-profile";
+import { MembersCard } from "@/components/settings/members";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Page = () => {
 	const { isAdmin, isLoading, hasError, sessionError } = useAuthState();
@@ -59,26 +70,85 @@ const Page = () => {
 	}
 
 	return (
-		<div className="p-6 space-y-6">
+		<div className="p-6 space-y-6 max-w-6xl mx-auto">
 			{/* Header */}
 			<div>
 				<h1 className="text-2xl font-bold text-foreground">Settings</h1>
 				<p className="text-muted-foreground">
-					Manage your organization settings and subscription
+					Manage your profile, organization settings, and team members
 				</p>
 			</div>
 
-			{/* Organization Info - Components now use their own hooks */}
-			<OrganizationCard />
+			<Tabs defaultValue="profile" className="w-full">
+				<TabsList className="grid grid-cols-6 gap-4 mb-6">
+					<TabsTrigger
+						value="profile"
+						className="flex items-center gap-2"
+					>
+						<User className="h-4 w-4" />
+						Profile
+					</TabsTrigger>
+					<TabsTrigger
+						value="organization"
+						className="flex items-center gap-2"
+					>
+						<Building2 className="h-4 w-4" />
+						Organization
+					</TabsTrigger>
+					<TabsTrigger
+						value="members"
+						className="flex items-center gap-2"
+					>
+						<Users2 className="h-4 w-4" />
+						Members
+					</TabsTrigger>
+					<TabsTrigger
+						value="usage"
+						className="flex items-center gap-2"
+					>
+						<LineChart className="h-4 w-4" />
+						Usage
+					</TabsTrigger>
+					<TabsTrigger
+						value="subscription"
+						className="flex items-center gap-2"
+					>
+						<CreditCard className="h-4 w-4" />
+						Subscription
+					</TabsTrigger>
+					<TabsTrigger
+						value="actions"
+						className="flex items-center gap-2"
+					>
+						<Settings2 className="h-4 w-4" />
+						Actions
+					</TabsTrigger>
+				</TabsList>
 
-			{/* Usage & Limits */}
-			<UsageCard />
+				<TabsContent value="profile" className="space-y-6">
+					<UserProfileCard />
+				</TabsContent>
 
-			{/* Subscription Details */}
-			<SubscriptionCard />
+				<TabsContent value="organization" className="space-y-6">
+					<OrganizationCard />
+				</TabsContent>
 
-			{/* Quick Actions */}
-			<QuickActions />
+				<TabsContent value="members" className="space-y-6">
+					<MembersCard />
+				</TabsContent>
+
+				<TabsContent value="usage" className="space-y-6">
+					<UsageCard />
+				</TabsContent>
+
+				<TabsContent value="subscription" className="space-y-6">
+					<SubscriptionCard />
+				</TabsContent>
+
+				<TabsContent value="actions" className="space-y-6">
+					<QuickActions />
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 };

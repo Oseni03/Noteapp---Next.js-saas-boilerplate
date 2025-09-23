@@ -1,3 +1,7 @@
+// Layout page
+"use client";
+
+import { useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -5,12 +9,24 @@ import {
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { authClient } from "@/lib/auth-client";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 
 export default function Page({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	const { setActiveOrganization } = useOrganizationStore((state) => state);
+	const { data: session } = authClient.useSession();
+
+	// Move the state update to useEffect to avoid calling it during render
+	useEffect(() => {
+		if (session?.activeOrganizationId) {
+			setActiveOrganization(session.activeOrganizationId);
+		}
+	}, [session?.activeOrganizationId, setActiveOrganization]);
+
 	return (
 		<SidebarProvider>
 			<AppSidebar />

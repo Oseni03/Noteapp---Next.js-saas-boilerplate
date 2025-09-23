@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { Organization } from "@/types";
 import {
 	Select,
 	SelectContent,
@@ -28,18 +27,17 @@ import {
 } from "../ui/select";
 import { DialogFooter } from "../ui/dialog";
 import { authClient } from "@/lib/auth-client";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 
 const formSchema = z.object({
 	email: z.email(),
 	role: z.enum(["admin", "member"]),
 });
 
-export function InvitationForm({
-	organization,
-}: {
-	organization: Organization;
-}) {
+export function InvitationForm({ onSuccess }: { onSuccess: () => void }) {
 	const [isLoading, setIsLoading] = useState(false);
+	const { addInvitation, activeOrganization: organization } =
+		useOrganizationStore((state) => state);
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -54,7 +52,9 @@ export function InvitationForm({
 			toast.loading("Sending invite...");
 			setIsLoading(true);
 
-			const { error } = await authClient.organization.inviteMember({
+			if (!organization) return;
+
+			const { error, data } = await authClient.organization.inviteMember({
 				email: values.email,
 				role: values.role,
 				organizationId: organization.id,
@@ -70,6 +70,11 @@ export function InvitationForm({
 				toast.success(
 					`Invitation created successfully. Check your email`
 				);
+				onSuccess();
+			}
+
+			if (data) {
+				addInvitation(data);
 			}
 		} catch (error) {
 			console.error(error);

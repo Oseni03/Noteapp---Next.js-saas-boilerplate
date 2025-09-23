@@ -5,16 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-	Mail,
-	Calendar,
-	Shield,
-	Users,
-	Clock,
-	User,
-	Send,
-	X,
-} from "lucide-react";
+import { Mail, Calendar, Shield, Users, Clock, Send, X } from "lucide-react";
 import { format } from "date-fns";
 import {
 	Dialog,
@@ -39,10 +30,17 @@ import {
 	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { removeMember } from "@/server/members";
 
 const Page = () => {
-	const { activeOrganization, members, user, isAdmin, invitations } =
-		useAuthState();
+	const {
+		activeOrganization,
+		members,
+		invitations,
+		removeMember: removeMemberState,
+	} = useOrganizationStore((state) => state);
+	const { user, isAdmin } = useAuthState();
 
 	if (!isAdmin) {
 		return (
@@ -64,23 +62,24 @@ const Page = () => {
 		try {
 			toast.loading("Removing member...");
 
-			const response = await fetch(
-				`/api/tenants/${activeOrganization.slug}/members/${memberId}`,
-				{
-					method: "DELETE",
-					headers: { "Content-Type": "application/json" },
-				}
+			if (!activeOrganization) return;
+
+			const { data, error } = await removeMember(
+				activeOrganization.id,
+				memberId
 			);
 
-			const result = await response.json();
+			if (data) {
+				removeMemberState(data.member.id);
+			}
 
-			if (result.success) {
+			if (error) {
+				console.error("Error:", error);
 				toast.dismiss();
-				toast.success(`${result.message as string}.`);
+				toast.error("Unable to remove member");
 			} else {
-				console.error("Error:", result.message);
 				toast.dismiss();
-				toast.error(result.error.message || "Failed to remove member");
+				toast.success("Member remove successfully");
 			}
 		} catch (error) {
 			console.error(error);
@@ -90,10 +89,10 @@ const Page = () => {
 	}
 
 	const availableSlots =
-		activeOrganization.maxUsers === 1
+		activeOrganization?.maxUsers === 1
 			? "Unlimited slots available"
 			: `${
-					activeOrganization.maxUsers! - (members?.length || 0)
+					activeOrganization?.maxUsers || 50 - (members?.length || 0)
 			  } slots available`;
 
 	return (
@@ -107,7 +106,7 @@ const Page = () => {
 						</h1>
 						<p className="text-muted-foreground">
 							{members?.length || 0} of{" "}
-							{activeOrganization.maxUsers} users
+							{activeOrganization?.maxUsers} users
 						</p>
 					</div>
 					<DialogTrigger asChild>
@@ -125,7 +124,7 @@ const Page = () => {
 							Invite a new user to your tenant.
 						</DialogDescription>
 					</DialogHeader>
-					<InvitationForm organization={activeOrganization} />
+					<InvitationForm />
 				</DialogContent>
 			</Dialog>
 
@@ -429,9 +428,6 @@ const Page = () => {
 													</DialogDescription>
 												</DialogHeader>
 												<UpdateMemberRoleForm
-													organization={
-														activeOrganization
-													}
 													defaultValues={{
 														email: member.user
 															.email,

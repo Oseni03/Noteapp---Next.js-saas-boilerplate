@@ -15,10 +15,14 @@ import { SUBSCRIPTION_PLANS } from "@/lib/utils";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Badge } from "../ui/badge";
-import { useAuthState } from "@/hooks/use-auth";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { upgradeSubscription } from "@/server/subscription";
+import { Organization } from "@/types";
 
 const SubscriptionCard = () => {
-	const { activeOrganization } = useAuthState();
+	const { activeOrganization, updateOrganization } = useOrganizationStore(
+		(state) => state
+	);
 	const [selectedPlan, setSelectedPlan] = useState("free");
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -26,29 +30,24 @@ const SubscriptionCard = () => {
 		try {
 			setIsLoading(true);
 			toast.loading("Updating subscription...");
-			const response = await fetch(
-				`/api/tenants/${activeOrganization?.slug}/upgrade`,
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						plan: selectedPlan,
-					}),
-				}
+
+			if (!activeOrganization) return;
+
+			const { success, data, error } = await upgradeSubscription(
+				activeOrganization.id,
+				selectedPlan
 			);
 
-			if (!response.ok) {
+			if (!success) {
 				throw new Error(
-					`Failed to update tenent subscription: ${response.statusText}`
+					`Failed to update tenent subscription: ${error}`
 				);
 			}
-
-			const { message } = await response.json();
-
-			toast.dismiss();
-			toast.success(message || "Tenant subscription updated successful");
+			if (data) {
+				updateOrganization(data as Organization);
+				toast.dismiss();
+				toast.success("Tenant subscription updated successful");
+			}
 		} catch (error) {
 			console.error("Error updating tenant subscription:", error);
 			toast.dismiss();

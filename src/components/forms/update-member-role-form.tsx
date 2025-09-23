@@ -18,7 +18,6 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
-import { Organization } from "@/types";
 import {
 	Select,
 	SelectContent,
@@ -27,21 +26,25 @@ import {
 	SelectValue,
 } from "../ui/select";
 import { DialogFooter } from "../ui/dialog";
+import { updateMemberRole } from "@/server/members";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 
 const formSchema = z.object({
-	email: z.string().email(),
+	email: z.email(),
 	role: z.enum(["admin", "member"]),
 });
 
 export function UpdateMemberRoleForm({
-	organization,
 	defaultValues,
 	memberId,
+	onSuccess,
 }: {
-	organization: Organization;
 	defaultValues: z.infer<typeof formSchema>;
 	memberId: string;
+	onSuccess: () => void;
 }) {
+	const { activeOrganization: organization, updateMember } =
+		useOrganizationStore((state) => state);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -54,29 +57,26 @@ export function UpdateMemberRoleForm({
 			toast.loading("Sending invite...");
 			setIsLoading(true);
 
-			const response = await fetch(
-				`/api/tenants/${organization.slug}/members/${memberId}`,
-				{
-					method: "PATCH",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						role: values.role,
-					}),
-				}
+			if (!organization) return;
+
+			const { data, success, error } = await updateMemberRole(
+				memberId,
+				organization.id,
+				values.role
 			);
 
-			const result = await response.json();
-
-			if (result.success) {
+			if (!success) {
+				console.error("Error:", error);
 				toast.dismiss();
-				toast.success(`${result.message as string}.`);
-			} else {
-				console.error("Error:", result.message);
-				toast.dismiss();
-				toast.error(
-					result.error.message || "Failed to update member role"
-				);
+				toast.error("Failed to update member role");
+				return;
 			}
+
+			toast.dismiss();
+			toast.error("Member role updated successfully");
+			onSuccess();
+
+			if (data) updateMember(data);
 		} catch (error) {
 			console.error(error);
 			toast.dismiss();

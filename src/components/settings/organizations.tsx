@@ -25,18 +25,23 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { UpdateOrganizationForm } from "../forms/update-organization-form";
 import { toast } from "sonner";
-import { useAuthState } from "@/hooks/use-auth";
 import { Organization } from "@/types";
 import { Card, CardContent } from "../ui/card";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { deleteOrganization } from "@/server/organizations";
+import { useAuthState } from "@/hooks/use-auth";
 
 const OrganizationCard = () => {
-	const { activeOrganization, isLoading: orgLoading } = useAuthState();
+	const { activeOrganization, removeOrganization } = useOrganizationStore(
+		(state) => state
+	);
+	const { isAdmin } = useAuthState();
 
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
-	if (orgLoading) {
+	if (!activeOrganization) {
 		return (
 			<Card>
 				<CardContent>
@@ -52,26 +57,23 @@ const OrganizationCard = () => {
 
 	const handleDeleteConfirm = async () => {
 		try {
-			toast.loading("Deleting organization...");
+			toast.loading("Deleting tenant...");
 			setIsLoading(true);
 
-			const response = await fetch(
-				`/api/tenants/${activeOrganization?.slug}`,
-				{
-					method: "DELETE",
-					headers: { "Content-Type": "application/json" },
-				}
+			const { data, success } = await deleteOrganization(
+				activeOrganization.id
 			);
 
-			const result = await response.json();
+			if (!success) {
+				toast.dismiss();
+				toast.error("Failed to delete tenant");
+			}
 
-			if (result.success) {
+			if (data) {
+				removeOrganization(data.id);
+
 				toast.dismiss();
-				toast.success(result.message);
-			} else {
-				console.error("Error:", result.message);
-				toast.dismiss();
-				toast.error(result.message);
+				toast.success("Tenant deleted successfully");
 			}
 		} catch (error) {
 			console.error(error);
@@ -95,38 +97,42 @@ const OrganizationCard = () => {
 							Tenant Information
 						</h3>
 						<div className="flex items-center gap-2">
-							<Dialog
-								open={updateDialogOpen}
-								onOpenChange={setUpdateDialogOpen}
-							>
-								<DialogTrigger asChild>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() =>
-											setUpdateDialogOpen(true)
-										}
-										className="h-9 w-9 p-0"
+							{isAdmin && (
+								<>
+									<Dialog
+										open={updateDialogOpen}
+										onOpenChange={setUpdateDialogOpen}
 									>
-										<Edit className="w-5 h-5" />
-									</Button>
-								</DialogTrigger>
-							</Dialog>
+										<DialogTrigger asChild>
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={() =>
+													setUpdateDialogOpen(true)
+												}
+												className="h-9 w-9 p-0"
+											>
+												<Edit className="w-5 h-5" />
+											</Button>
+										</DialogTrigger>
+									</Dialog>
 
-							<AlertDialog
-								open={deleteDialogOpen}
-								onOpenChange={setDeleteDialogOpen}
-							>
-								<AlertDialogTrigger asChild>
-									<Button
-										variant="ghost"
-										size="sm"
-										className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600"
+									<AlertDialog
+										open={deleteDialogOpen}
+										onOpenChange={setDeleteDialogOpen}
 									>
-										<Trash2 className="w-5 h-5" />
-									</Button>
-								</AlertDialogTrigger>
-							</AlertDialog>
+										<AlertDialogTrigger asChild>
+											<Button
+												variant="ghost"
+												size="sm"
+												className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600"
+											>
+												<Trash2 className="w-5 h-5" />
+											</Button>
+										</AlertDialogTrigger>
+									</AlertDialog>
+								</>
+							)}
 						</div>
 					</div>
 				</div>

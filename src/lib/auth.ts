@@ -20,6 +20,23 @@ export const auth = betterAuth({
 	database: prismaAdapter(prisma, {
 		provider: "postgresql", // or "mysql", "postgresql", ...etc
 	}),
+	databaseHooks: {
+		session: {
+			create: {
+				before: async (session) => {
+					const organization = await getActiveOrganization(
+						session.userId
+					);
+					return {
+						data: {
+							...session,
+							activeOrganizationId: organization?.id,
+						},
+					};
+				},
+			},
+		},
+	},
 	plugins: [
 		organization({
 			creatorRole: "admin",

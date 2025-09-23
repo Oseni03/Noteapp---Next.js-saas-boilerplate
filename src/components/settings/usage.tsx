@@ -5,10 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Users } from "lucide-react";
 import { Progress } from "../ui/progress";
 import { Note } from "@/types";
-import { useAuthState } from "@/hooks/use-auth";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 
 export const UsageCard = () => {
-	const { activeOrganization, memberCount } = useAuthState();
+	const { activeOrganization, members } = useOrganizationStore(
+		(state) => state
+	);
 	const [notes, setNotes] = useState<Note[]>([]);
 	const maxNotes = activeOrganization?.maxNotes
 		? activeOrganization?.maxNotes == 1
@@ -20,6 +22,8 @@ export const UsageCard = () => {
 			? 1000000000
 			: activeOrganization?.maxUsers
 		: 50;
+
+	const membersCount = members.length;
 
 	useEffect(() => {
 		const getNotes = async () => {
@@ -50,11 +54,11 @@ export const UsageCard = () => {
 					<div className="flex justify-between text-sm">
 						<span>Users</span>
 						<span className="font-medium">
-							{memberCount} / {maxUsers}
+							{membersCount} / {maxUsers}
 						</span>
 					</div>
 					<Progress
-						value={((memberCount || 0) / maxUsers) * 100}
+						value={((membersCount || 0) / maxUsers) * 100}
 						className="h-2"
 					/>
 				</div>

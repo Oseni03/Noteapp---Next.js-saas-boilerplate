@@ -28,19 +28,17 @@ import {
 	DialogTitle,
 } from "./ui/dialog";
 import { CreateOrganizationForm } from "./forms/create-organization-form";
-import { Organization } from "@/types";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 
 export function TeamSwitcher() {
 	const { isMobile } = useSidebar();
-	const { data: organizations } = authClient.useListOrganizations();
-	const { data } = authClient.useActiveOrganization();
+	const { organizations, activeOrganization, setActiveOrganization } =
+		useOrganizationStore((state) => state);
 	const [dialogOpen, setDialogOpen] = React.useState(false);
-
-	const activeOrganization = data as Organization;
 
 	const handleChangeOrganization = async (organizationId: string) => {
 		try {
-			const { error } = await authClient.organization.setActive({
+			const { error, data } = await authClient.organization.setActive({
 				organizationId,
 			});
 
@@ -48,6 +46,10 @@ export function TeamSwitcher() {
 				console.error(error);
 				toast.error("Failed to switch organization");
 				return;
+			}
+
+			if (data) {
+				setActiveOrganization(data.id);
 			}
 
 			toast.success("Organization switched successfully");

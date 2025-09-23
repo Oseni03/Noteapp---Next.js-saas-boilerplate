@@ -1,10 +1,8 @@
 "use client";
 
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
-import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
 	Form,
@@ -19,6 +17,10 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { DialogFooter } from "../ui/dialog";
+import { createOrganization } from "@/server/organizations";
+import { authClient } from "@/lib/auth-client";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { Organization } from "@/types";
 
 const formSchema = z.object({
 	name: z.string().min(2).max(50),
@@ -26,7 +28,11 @@ const formSchema = z.object({
 });
 
 export function CreateOrganizationForm() {
+	const { data } = authClient.useSession();
+	const { addOrganization } = useOrganizationStore((state) => state);
 	const [isLoading, setIsLoading] = useState(false);
+
+	const user = data?.user;
 
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -41,25 +47,19 @@ export function CreateOrganizationForm() {
 			toast.loading("Creating Tenant...");
 			setIsLoading(true);
 
-			const response = await fetch("/api/tenants", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					name: values.name,
-					slug: values.slug,
-				}),
-			});
+			if (!user) return;
 
-			const result = await response.json();
+			const { data, success } = await createOrganization(user.id, values);
 
-			if (result.success) {
+			if (!data || !success) {
 				toast.dismiss();
-				toast.success(result.message);
-			} else {
-				console.error("Error:", result.message);
-				toast.dismiss();
-				toast.error(result.message);
+				toast.error("Failed to create tenant");
+				return;
 			}
+
+			addOrganization(data as Organization);
+			toast.dismiss();
+			toast.success("Organization created successfully");
 		} catch (error) {
 			console.error(error);
 			toast.dismiss();

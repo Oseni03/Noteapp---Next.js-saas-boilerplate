@@ -18,6 +18,8 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Organization } from "@/types";
 import { DialogFooter } from "../ui/dialog";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { updateOrganization } from "@/server/organizations";
 
 const formSchema = z.object({
 	name: z.string().min(2).max(50),
@@ -29,6 +31,8 @@ export function UpdateOrganizationForm({
 }: {
 	organization: Organization;
 }) {
+	const { updateOrganization: updateOrganizationState } =
+		useOrganizationStore((state) => state);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -44,23 +48,15 @@ export function UpdateOrganizationForm({
 			toast.loading("Updating Tenants...");
 			setIsLoading(true);
 
-			const response = await fetch(`/api/tenants/${organization.slug}`, {
-				method: "PUT",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					data: { name: values.name, slug: values.slug },
-				}),
-			});
+			const data = await updateOrganization(organization.id, values);
 
-			const result = await response.json();
-
-			if (result.success) {
+			if (data) {
 				toast.dismiss();
-				toast.success(result.message);
+				toast.success("Organization updated successfully");
+				updateOrganizationState(data as Organization);
 			} else {
-				console.error("Error:", result.message);
 				toast.dismiss();
-				toast.error(result.message);
+				toast.error("Failed to update organization");
 			}
 		} catch (error) {
 			console.error(error);
