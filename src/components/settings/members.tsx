@@ -121,23 +121,26 @@ export const MembersCard = () => {
 			  } slots available`;
 
 	return (
-		<div className="p-6 space-y-6">
+		<div className="p-4 sm:p-6 space-y-6">
 			{/* Header */}
 			<Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
-				<div className="flex items-center justify-between">
+				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
 					<div>
-						<h1 className="text-xl font-bold text-foreground">
+						<h1 className="text-lg sm:text-xl font-bold text-foreground">
 							User Management
 						</h1>
-						<p className="text-muted-foreground">
+						<p className="text-sm text-muted-foreground">
 							{members?.length || 0} of{" "}
 							{activeOrganization?.maxUsers} users
 						</p>
 					</div>
 					<DialogTrigger asChild>
-						<Button disabled={!isAdmin}>
+						<Button
+							disabled={!isAdmin}
+							className="w-full sm:w-auto"
+						>
 							<Users className="w-4 h-4 mr-2" />
-							Invite User
+							<span>Invite User</span>
 						</Button>
 					</DialogTrigger>
 				</div>
@@ -375,152 +378,161 @@ export const MembersCard = () => {
 				)}
 
 			{/* Users List */}
-			<div className="space-y-4">
-				<h2 className="text-lg font-semibold">Team Members</h2>
-				<div className="grid gap-4">
-					{members?.map((member) => (
-						<Card key={member.id}>
-							<CardContent className="p-6">
-								<div className="flex items-center justify-between">
-									<div className="flex items-center gap-4">
-										<Avatar className="h-12 w-12">
-											<AvatarFallback className="bg-primary text-primary-foreground font-medium">
-												{member.user.name
-													.split(" ")
-													.map((n) => n[0])
-													.join("")}
-											</AvatarFallback>
-										</Avatar>
-										<div>
-											<div className="flex items-center gap-2">
-												<h3 className="font-medium">
-													{member.user.name}
-												</h3>
-												<Badge
-													variant={
-														member.role === "admin"
-															? "default"
-															: "secondary"
-													}
-												>
-													{member.role}
-												</Badge>
-												{member.userId === user?.id && (
+			{members.length > 0 && (
+				<div className="space-y-4">
+					<h2 className="text-lg font-semibold">Team Members</h2>
+					<div className="grid gap-4">
+						{members?.map((member) => (
+							<Card key={member.id}>
+								<CardContent className="p-6">
+									<div className="flex items-center justify-between">
+										<div className="flex items-center gap-4">
+											<Avatar className="h-12 w-12">
+												<AvatarFallback className="bg-primary text-primary-foreground font-medium">
+													{member.user.name
+														.split(" ")
+														.map((n) => n[0])
+														.join("")}
+												</AvatarFallback>
+											</Avatar>
+											<div>
+												<div className="flex items-center gap-2">
+													<h3 className="font-medium">
+														{member.user.name}
+													</h3>
 													<Badge
-														variant="outline"
-														className="text-xs"
+														variant={
+															member.role ===
+															"admin"
+																? "default"
+																: "secondary"
+														}
 													>
-														You
+														{member.role}
 													</Badge>
-												)}
-											</div>
-											<div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-												<div className="flex items-center gap-1">
-													<Mail className="w-3 h-3" />
-													{member.user.email}
-												</div>
-												<div className="flex items-center gap-1">
-													<Calendar className="w-3 h-3" />
-													Joined{" "}
-													{format(
-														member.createdAt,
-														"MMM yyyy"
+													{member.userId ===
+														user?.id && (
+														<Badge
+															variant="outline"
+															className="text-xs"
+														>
+															You
+														</Badge>
 													)}
+												</div>
+												<div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+													<div className="flex items-center gap-1">
+														<Mail className="w-3 h-3" />
+														{member.user.email}
+													</div>
+													<div className="flex items-center gap-1">
+														<Calendar className="w-3 h-3" />
+														Joined{" "}
+														{format(
+															member.createdAt,
+															"MMM yyyy"
+														)}
+													</div>
 												</div>
 											</div>
 										</div>
-									</div>
-									<div className="flex gap-2">
-										<Dialog
-											open={isMemberOpen}
-											onOpenChange={setIsMemberOpen}
-										>
-											<DialogTrigger asChild>
-												<Button
-													variant="outline"
-													size="sm"
-													disabled={
-														member.userId ===
-															user?.id || !isAdmin
-													}
-												>
-													Edit
-												</Button>
-											</DialogTrigger>
-											{/* Update Dialog Content */}
-											<DialogContent>
-												<DialogHeader>
-													<DialogTitle>
-														Update Member
-													</DialogTitle>
-													<DialogDescription>
-														Update member role of
-														your tenant.
-													</DialogDescription>
-												</DialogHeader>
-												<UpdateMemberRoleForm
-													defaultValues={{
-														email: member.user
-															.email,
-														role: member.role as
-															| "member"
-															| "admin",
-													}}
-													memberId={member.id}
-													onSuccess={() =>
-														setIsMemberOpen(false)
-													}
-												/>
-											</DialogContent>
-										</Dialog>
-										<AlertDialog>
-											<AlertDialogTrigger asChild>
-												<Button
-													variant="outline"
-													size="sm"
-													disabled={
-														member.userId ===
-															user?.id || !isAdmin
-													}
-												>
-													Remove
-												</Button>
-											</AlertDialogTrigger>
-											<AlertDialogContent>
-												<AlertDialogHeader>
-													<AlertDialogTitle>
-														Are you absolutely sure?
-													</AlertDialogTitle>
-													<AlertDialogDescription>
-														This action cannot be
-														undone. This will
-														permanently remove user
-														from Tenant.
-													</AlertDialogDescription>
-												</AlertDialogHeader>
-												<AlertDialogFooter>
-													<AlertDialogCancel>
-														Cancel
-													</AlertDialogCancel>
-													<AlertDialogAction
-														onClick={() =>
-															handleRemoveMember(
-																member.id
-															)
+										<div className="flex gap-2">
+											<Dialog
+												open={isMemberOpen}
+												onOpenChange={setIsMemberOpen}
+											>
+												<DialogTrigger asChild>
+													<Button
+														variant="outline"
+														size="sm"
+														disabled={
+															member.userId ===
+																user?.id ||
+															!isAdmin
 														}
 													>
-														Continue
-													</AlertDialogAction>
-												</AlertDialogFooter>
-											</AlertDialogContent>
-										</AlertDialog>
+														Edit
+													</Button>
+												</DialogTrigger>
+												{/* Update Dialog Content */}
+												<DialogContent>
+													<DialogHeader>
+														<DialogTitle>
+															Update Member
+														</DialogTitle>
+														<DialogDescription>
+															Update member role
+															of your tenant.
+														</DialogDescription>
+													</DialogHeader>
+													<UpdateMemberRoleForm
+														defaultValues={{
+															email: member.user
+																.email,
+															role: member.role as
+																| "member"
+																| "admin",
+														}}
+														memberId={member.id}
+														onSuccess={() =>
+															setIsMemberOpen(
+																false
+															)
+														}
+													/>
+												</DialogContent>
+											</Dialog>
+											<AlertDialog>
+												<AlertDialogTrigger asChild>
+													<Button
+														variant="outline"
+														size="sm"
+														disabled={
+															member.userId ===
+																user?.id ||
+															!isAdmin
+														}
+													>
+														Remove
+													</Button>
+												</AlertDialogTrigger>
+												<AlertDialogContent>
+													<AlertDialogHeader>
+														<AlertDialogTitle>
+															Are you absolutely
+															sure?
+														</AlertDialogTitle>
+														<AlertDialogDescription>
+															This action cannot
+															be undone. This will
+															permanently remove
+															user from Tenant.
+														</AlertDialogDescription>
+													</AlertDialogHeader>
+													<AlertDialogFooter>
+														<AlertDialogCancel>
+															Cancel
+														</AlertDialogCancel>
+														<AlertDialogAction
+															onClick={() =>
+																handleRemoveMember(
+																	member.id
+																)
+															}
+														>
+															Continue
+														</AlertDialogAction>
+													</AlertDialogFooter>
+												</AlertDialogContent>
+											</AlertDialog>
+										</div>
 									</div>
-								</div>
-							</CardContent>
-						</Card>
-					))}
+								</CardContent>
+							</Card>
+						))}
+					</div>
 				</div>
-			</div>
+			)}
 
 			{members?.length === 0 && (
 				<div className="text-center py-12">

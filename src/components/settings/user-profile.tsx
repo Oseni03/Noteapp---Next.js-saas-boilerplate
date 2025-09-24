@@ -44,16 +44,16 @@ export const UserProfileCard = () => {
 
 	return (
 		<Card>
-			<CardHeader>
+			<CardHeader className="space-y-1">
 				<CardTitle className="flex items-center gap-2">
-					<User className="h-5 w-5" />
+					<User className="h-4 w-4 sm:h-5 sm:w-5" />
 					User Profile
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
 				{isEditing ? (
 					<form onSubmit={handleSubmit} className="space-y-4">
-						<div>
+						<div className="space-y-2">
 							<label className="text-sm font-medium">Name</label>
 							<Input
 								value={formData.name}
@@ -64,9 +64,10 @@ export const UserProfileCard = () => {
 									})
 								}
 								placeholder="Your name"
+								className="w-full sm:max-w-md"
 							/>
 						</div>
-						<div>
+						<div className="space-y-2">
 							<label className="text-sm font-medium">Email</label>
 							<Input
 								value={formData.email}
@@ -79,10 +80,15 @@ export const UserProfileCard = () => {
 								placeholder="Your email"
 								type="email"
 								disabled
+								className="w-full sm:max-w-md"
 							/>
 						</div>
-						<div className="flex gap-2">
-							<Button type="submit" disabled={isLoading}>
+						<div className="flex flex-col sm:flex-row gap-2 pt-2">
+							<Button
+								type="submit"
+								disabled={isLoading}
+								className="w-full sm:w-auto"
+							>
 								{isLoading ? (
 									<>Saving...</>
 								) : (
@@ -96,6 +102,7 @@ export const UserProfileCard = () => {
 								type="button"
 								variant="outline"
 								onClick={() => setIsEditing(false)}
+								className="w-full sm:w-auto"
 							>
 								Cancel
 							</Button>
@@ -103,23 +110,26 @@ export const UserProfileCard = () => {
 					</form>
 				) : (
 					<div className="space-y-4">
-						<div>
+						<div className="space-y-1">
 							<label className="text-sm font-medium block">
 								Name
 							</label>
-							<p className="text-muted-foreground">
+							<p className="text-base text-muted-foreground">
 								{user?.name}
 							</p>
 						</div>
-						<div>
+						<div className="space-y-1">
 							<label className="text-sm font-medium block">
 								Email
 							</label>
-							<p className="text-muted-foreground">
+							<p className="text-base text-muted-foreground break-all">
 								{user?.email}
 							</p>
 						</div>
-						<Button onClick={() => setIsEditing(true)}>
+						<Button
+							onClick={() => setIsEditing(true)}
+							className="w-full sm:w-auto mt-2"
+						>
 							Edit Profile
 						</Button>
 					</div>

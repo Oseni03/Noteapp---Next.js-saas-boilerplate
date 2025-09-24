@@ -103,12 +103,6 @@ export async function updateOrganization(
 	data: { name: string; slug: string }
 ) {
 	try {
-		const { success } = await isAdmin();
-
-		if (!success) {
-			throw new Error("You are not authorized to remove members.", {});
-		}
-
 		const result = await auth.api.updateOrganization({
 			body: {
 				data,
@@ -154,15 +148,6 @@ export async function createOrganization(
 	data: { name: string; slug: string }
 ) {
 	try {
-		const admin = await isAdmin();
-
-		if (!admin) {
-			return {
-				success: false,
-				error: "You are not authorized to remove members.",
-			};
-		}
-
 		const result = await auth.api.createOrganization({
 			body: {
 				...data, // required
@@ -172,6 +157,23 @@ export async function createOrganization(
 			// This endpoint requires session cookies.
 			headers: await headers(),
 		});
+		return { data: result, success: true };
+	} catch (error) {
+		console.error("Error creating organization: ", error);
+		return { success: false, error };
+	}
+}
+
+export async function setActiveOrganization(organizationId: string) {
+	try {
+		const result = await auth.api.setActiveOrganization({
+			body: {
+				organizationId,
+			},
+			// This endpoint requires session cookies.
+			headers: await headers(),
+		});
+		console.log("Set active organization result:", result);
 		return { data: result, success: true };
 	} catch (error) {
 		console.error("Error creating organization: ", error);

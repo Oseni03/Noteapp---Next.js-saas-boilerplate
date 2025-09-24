@@ -28,6 +28,8 @@ import {
 import { DialogFooter } from "../ui/dialog";
 import { updateMemberRole } from "@/server/members";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { getUser } from "@/server/users";
+import { MemberUser } from "@/types";
 
 const formSchema = z.object({
 	email: z.email(),
@@ -85,7 +87,16 @@ export function UpdateMemberRoleForm({
 			toast.error("Member role updated successfully");
 			onSuccess();
 
-			if (data) updateMember(data);
+			if (data) {
+				const updatedMemberUser = await getUser(data.userId);
+
+				if (!updatedMemberUser.data) return;
+
+				updateMember({
+					...data,
+					user: updatedMemberUser?.data as MemberUser,
+				});
+			}
 		} catch (error) {
 			console.error(error);
 			toast.dismiss();

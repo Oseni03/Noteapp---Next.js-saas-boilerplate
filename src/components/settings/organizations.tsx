@@ -121,29 +121,29 @@ const OrganizationCard = () => {
 						</div>
 					</div>
 				</div>
-				<div className="p-6 space-y-4">
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div>
+				<div className="p-4 sm:p-6 space-y-4">
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<div className="space-y-1">
 							<label className="text-sm font-medium text-gray-500">
 								Name
 							</label>
-							<div className="text-lg font-medium">
+							<div className="text-base sm:text-lg font-medium break-words">
 								{activeOrganization?.name}
 							</div>
 						</div>
-						<div>
+						<div className="space-y-1">
 							<label className="text-sm font-medium text-gray-500">
 								Slug
 							</label>
-							<div className="text-lg font-medium">
+							<div className="text-base sm:text-lg font-medium break-all">
 								{activeOrganization?.slug}
 							</div>
 						</div>
-						<div>
+						<div className="space-y-1">
 							<label className="text-sm font-medium text-gray-500">
 								Created
 							</label>
-							<div className="text-lg font-medium">
+							<div className="text-base sm:text-lg font-medium">
 								{activeOrganization &&
 									format(
 										activeOrganization.createdAt,

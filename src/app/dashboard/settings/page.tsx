@@ -19,84 +19,106 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Page = () => {
 	return (
-		<div className="p-6 space-y-6">
+		<div className="p-4 sm:p-6 space-y-6 max-w-[1200px] mx-auto">
 			{/* Header */}
 			<div>
-				<h1 className="text-2xl font-bold text-foreground">Settings</h1>
-				<p className="text-muted-foreground">
+				<h1 className="text-xl sm:text-2xl font-bold text-foreground">
+					Settings
+				</h1>
+				<p className="text-sm sm:text-base text-muted-foreground">
 					Manage your profile, organization settings, and team members
 				</p>
 			</div>
 
 			<Tabs defaultValue="profile" className="w-full">
-				<TabsList className="grid grid-cols-6 gap-4 mb-6">
+				<TabsList className="flex flex-nowrap overflow-x-auto pb-2 sm:pb-0 mb-6 -mx-4 sm:mx-0 px-4 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
 					<TabsTrigger
 						value="profile"
-						className="flex items-center gap-2"
+						className="flex items-center gap-2 min-w-[120px] sm:min-w-0 whitespace-nowrap"
 					>
-						<User className="h-4 w-4" />
-						Profile
+						<User className="h-4 w-4 flex-shrink-0" />
+						<span>Profile</span>
 					</TabsTrigger>
 					<TabsTrigger
 						value="organization"
-						className="flex items-center gap-2"
+						className="flex items-center gap-2 min-w-[120px] sm:min-w-0 whitespace-nowrap"
 					>
-						<Building2 className="h-4 w-4" />
-						Organization
+						<Building2 className="h-4 w-4 flex-shrink-0" />
+						<span>Organization</span>
 					</TabsTrigger>
 					<TabsTrigger
 						value="members"
-						className="flex items-center gap-2"
+						className="flex items-center gap-2 min-w-[120px] sm:min-w-0 whitespace-nowrap"
 					>
-						<Users2 className="h-4 w-4" />
-						Members
+						<Users2 className="h-4 w-4 flex-shrink-0" />
+						<span>Members</span>
 					</TabsTrigger>
 					<TabsTrigger
 						value="usage"
-						className="flex items-center gap-2"
+						className="flex items-center gap-2 min-w-[120px] sm:min-w-0 whitespace-nowrap"
 					>
-						<LineChart className="h-4 w-4" />
-						Usage
+						<LineChart className="h-4 w-4 flex-shrink-0" />
+						<span>Usage</span>
 					</TabsTrigger>
 					<TabsTrigger
 						value="subscription"
-						className="flex items-center gap-2"
+						className="flex items-center gap-2 min-w-[120px] sm:min-w-0 whitespace-nowrap"
 					>
-						<CreditCard className="h-4 w-4" />
-						Subscription
+						<CreditCard className="h-4 w-4 flex-shrink-0" />
+						<span>Subscription</span>
 					</TabsTrigger>
 					<TabsTrigger
 						value="actions"
-						className="flex items-center gap-2"
+						className="flex items-center gap-2 min-w-[120px] sm:min-w-0 whitespace-nowrap"
 					>
-						<Settings2 className="h-4 w-4" />
-						Actions
+						<Settings2 className="h-4 w-4 flex-shrink-0" />
+						<span>Actions</span>
 					</TabsTrigger>
 				</TabsList>
 
-				<TabsContent value="profile" className="space-y-6">
-					<UserProfileCard />
-				</TabsContent>
+				<div className="-mx-4 sm:mx-0">
+					<TabsContent
+						value="profile"
+						className="space-y-4 sm:space-y-6 px-4 sm:px-0"
+					>
+						<UserProfileCard />
+					</TabsContent>
 
-				<TabsContent value="organization" className="space-y-6">
-					<OrganizationCard />
-				</TabsContent>
+					<TabsContent
+						value="organization"
+						className="space-y-4 sm:space-y-6 px-4 sm:px-0"
+					>
+						<OrganizationCard />
+					</TabsContent>
 
-				<TabsContent value="members" className="space-y-6">
-					<MembersCard />
-				</TabsContent>
+					<TabsContent
+						value="members"
+						className="space-y-4 sm:space-y-6 px-4 sm:px-0"
+					>
+						<MembersCard />
+					</TabsContent>
 
-				<TabsContent value="usage" className="space-y-6">
-					<UsageCard />
-				</TabsContent>
+					<TabsContent
+						value="usage"
+						className="space-y-4 sm:space-y-6 px-4 sm:px-0"
+					>
+						<UsageCard />
+					</TabsContent>
 
-				<TabsContent value="subscription" className="space-y-6">
-					<SubscriptionCard />
-				</TabsContent>
+					<TabsContent
+						value="subscription"
+						className="space-y-4 sm:space-y-6 px-4 sm:px-0"
+					>
+						<SubscriptionCard />
+					</TabsContent>
 
-				<TabsContent value="actions" className="space-y-6">
-					<QuickActions />
-				</TabsContent>
+					<TabsContent
+						value="actions"
+						className="space-y-4 sm:space-y-6 px-4 sm:px-0"
+					>
+						<QuickActions />
+					</TabsContent>
+				</div>
 			</Tabs>
 		</div>
 	);

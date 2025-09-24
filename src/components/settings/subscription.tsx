@@ -24,6 +24,7 @@ const SubscriptionCard = () => {
 		useOrganizationStore((state) => state);
 	const [selectedPlan, setSelectedPlan] = useState("free");
 	const [isLoading, setIsLoading] = useState(false);
+	const [isUpgradeDialogOpen, setIsUpgradeDialogOpen] = useState(false);
 
 	const handleSubscriptionUpgrade = async () => {
 		try {
@@ -96,12 +97,12 @@ const SubscriptionCard = () => {
 					</CardTitle>
 				</CardHeader>
 				<CardContent className="space-y-4">
-					<div className="flex items-center justify-between">
+					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 						<div>
 							<h3 className="text-lg font-semibold capitalize">
 								{activeOrganization?.subscription} Plan
 							</h3>
-							<p className="text-muted-foreground">
+							<p className="text-sm text-muted-foreground">
 								Perfect for{" "}
 								{activeOrganization?.subscription ===
 								"enterprise"
@@ -112,7 +113,11 @@ const SubscriptionCard = () => {
 							</p>
 						</div>
 						<DialogTrigger asChild>
-							<Button variant="outline" disabled={!isAdmin}>
+							<Button
+								variant="outline"
+								disabled={!isAdmin}
+								className="w-full sm:w-auto"
+							>
 								{activeOrganization?.subscription ===
 								"enterprise"
 									? "Contact Sales"
@@ -123,17 +128,19 @@ const SubscriptionCard = () => {
 
 					<div className="border-t pt-4">
 						<h4 className="font-medium mb-3">Features included:</h4>
-						<div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 							{activeOrganization &&
 								getSubscriptionFeatures(
 									activeOrganization.subscription || "free"
 								)?.map((feature, index) => (
 									<div
 										key={index}
-										className="flex items-center gap-2 text-sm"
+										className="flex items-start sm:items-center gap-2 text-sm"
 									>
-										<div className="w-1.5 h-1.5 rounded-full bg-primary" />
-										{feature}
+										<div className="w-1.5 h-1.5 mt-1.5 sm:mt-0 rounded-full bg-primary flex-shrink-0" />
+										<span className="flex-1">
+											{feature}
+										</span>
 									</div>
 								))}
 						</div>

@@ -112,3 +112,16 @@ export const getUsers = async (organizationId: string) => {
 		return [];
 	}
 };
+
+export const getUser = async (userId: string) => {
+	try {
+		const user = await prisma.user.findFirst({
+			where: { id: userId },
+		});
+
+		return { success: true, data: user };
+	} catch (error) {
+		console.error(error);
+		return { success: false, error };
+	}
+};
