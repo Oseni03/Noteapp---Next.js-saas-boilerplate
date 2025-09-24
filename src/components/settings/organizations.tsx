@@ -11,7 +11,6 @@ import {
 	AlertDialogFooter,
 	AlertDialogHeader,
 	AlertDialogTitle,
-	AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
 	Dialog,
@@ -19,7 +18,6 @@ import {
 	DialogDescription,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -99,38 +97,28 @@ const OrganizationCard = () => {
 						<div className="flex items-center gap-2">
 							{isAdmin && (
 								<>
-									<Dialog
-										open={updateDialogOpen}
-										onOpenChange={setUpdateDialogOpen}
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() =>
+											setUpdateDialogOpen(true)
+										}
+										className="h-9 w-9 p-0"
 									>
-										<DialogTrigger asChild>
-											<Button
-												variant="ghost"
-												size="sm"
-												onClick={() =>
-													setUpdateDialogOpen(true)
-												}
-												className="h-9 w-9 p-0"
-											>
-												<Edit className="w-5 h-5" />
-											</Button>
-										</DialogTrigger>
-									</Dialog>
+										<Edit className="w-5 h-5" />
+									</Button>
 
-									<AlertDialog
-										open={deleteDialogOpen}
-										onOpenChange={setDeleteDialogOpen}
+									<Button
+										variant="ghost"
+										size="sm"
+										className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600"
+										disabled={!isAdmin}
+										onClick={() =>
+											setDeleteDialogOpen(true)
+										}
 									>
-										<AlertDialogTrigger asChild>
-											<Button
-												variant="ghost"
-												size="sm"
-												className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600"
-											>
-												<Trash2 className="w-5 h-5" />
-											</Button>
-										</AlertDialogTrigger>
-									</AlertDialog>
+										<Trash2 className="w-5 h-5" />
+									</Button>
 								</>
 							)}
 						</div>

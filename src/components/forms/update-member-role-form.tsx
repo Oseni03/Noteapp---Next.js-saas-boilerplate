@@ -112,7 +112,7 @@ export function UpdateMemberRoleForm({
 					name="role"
 					render={({ field }) => (
 						<FormItem>
-							<FormLabel>Slug</FormLabel>
+							<FormLabel>Role</FormLabel>
 							<Select
 								onValueChange={field.onChange}
 								defaultValue={field.value}

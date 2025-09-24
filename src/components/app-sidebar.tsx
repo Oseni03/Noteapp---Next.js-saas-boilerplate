@@ -1,8 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { FileText, Settings, Users } from "lucide-react";
-
+import { FileText, Settings } from "lucide-react";
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import { TeamSwitcher } from "@/components/team-switcher";
@@ -22,13 +21,6 @@ const menuItems = [
 		icon: FileText,
 		url: "/dashboard",
 		adminOnly: false,
-	},
-	{
-		id: "users",
-		label: "Users",
-		icon: Users,
-		adminOnly: true,
-		url: "/dashboard/users",
 	},
 	{
 		id: "settings",

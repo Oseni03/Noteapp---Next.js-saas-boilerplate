@@ -1,6 +1,8 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { isAdmin } from "./permissions";
 
 export const createInvitation = async (
 	organizationId: string,
@@ -25,10 +27,20 @@ export const createInvitation = async (
 
 export const cancelInvitation = async (invitationId: string) => {
 	try {
+		const { success } = await isAdmin();
+
+		if (!success) {
+			return {
+				success,
+				error: "Unauthorized",
+			};
+		}
+
 		const data = await auth.api.cancelInvitation({
 			body: {
 				invitationId,
 			},
+			headers: await headers(),
 		});
 
 		return {
@@ -50,6 +62,7 @@ export const acceptInvitation = async (invitationId: string) => {
 			body: {
 				invitationId,
 			},
+			headers: await headers(),
 		});
 
 		return {

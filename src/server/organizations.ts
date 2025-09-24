@@ -129,9 +129,9 @@ export async function updateOrganization(
 
 export async function deleteOrganization(organizationId: string) {
 	try {
-		const admin = await isAdmin();
+		const { success } = await isAdmin();
 
-		if (!admin) {
+		if (!success) {
 			throw new Error("You are not authorized to remove members.");
 		}
 

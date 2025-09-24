@@ -18,10 +18,12 @@ type OrganizationActions = {
 		members: Member[],
 		invitations: Invitation[]
 	) => void;
+	setOrganizations: (organizations: Organization[]) => Promise<void>;
 	addOrganization: (organization: Organization) => Promise<void>;
 	updateOrganization: (organization: Organization) => Promise<void>;
 	removeOrganization: (organizationId: string) => Promise<void>;
 	addInvitation: (invitation: Invitation) => Promise<void>;
+	removeInvite: (invitationId: string) => Promise<void>;
 	updateMember: (member: Member) => Promise<void>;
 	removeMember: (memberId: string) => Promise<void>;
 	setLoading: (loading: boolean) => void;
@@ -44,16 +46,17 @@ export const createOrganizationStore = (
 		...initState,
 		// Separate sync function for setting organization data
 		setOrganizationData: (organization, members, invitations) => {
-			set({
+			set((state) => ({
+				...state,
 				activeOrganization: organization,
 				members: members,
 				invitations: invitations,
 				isLoading: false,
-			});
+			}));
 		},
 
 		setLoading: (loading: boolean) => {
-			set({ isLoading: loading });
+			set((state) => ({ ...state, isLoading: loading }));
 		},
 
 		// Async function that handles the data fetching properly
@@ -88,6 +91,12 @@ export const createOrganizationStore = (
 				get().setLoading(false);
 			}
 		},
+		setOrganizations: async (organizations) => {
+			set((state) => ({
+				...state,
+				organizations: [...state.organizations, ...organizations],
+			}));
+		},
 		addOrganization: async (organization) => {
 			set((state) => ({
 				...state,
@@ -114,11 +123,19 @@ export const createOrganizationStore = (
 				invitations: [...state.invitations, invitation],
 			}));
 		},
+		removeInvite: async (invitationId) => {
+			set((state) => ({
+				...state,
+				invitations: state.invitations.filter(
+					(invite) => invite.id !== invitationId
+				),
+			}));
+		},
 		updateMember: async (member) => {
 			set((state) => ({
 				...state,
 				members: state.members.map((m) => {
-					if (m.id == member.id) {
+					if (m.id === member.id) {
 						return member;
 					}
 					return m;

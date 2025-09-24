@@ -7,6 +7,8 @@ import { prisma } from "./prisma";
 import { getActiveOrganization } from "@/server/organizations";
 
 export const auth = betterAuth({
+	appName: "Multi-tenant SaaS Boilerplate",
+	baseURL: process.env.NEXT_PUBLIC_APP_URL,
 	session: {
 		cookieCache: {
 			enabled: true,

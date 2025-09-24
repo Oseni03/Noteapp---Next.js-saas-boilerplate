@@ -17,15 +17,26 @@ export default function Page({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const { setActiveOrganization } = useOrganizationStore((state) => state);
+	const { setActiveOrganization, setOrganizations } = useOrganizationStore(
+		(state) => state
+	);
 	const { data: session } = authClient.useSession();
+	const { data: organizations } = authClient.useListOrganizations();
 
 	// Move the state update to useEffect to avoid calling it during render
 	useEffect(() => {
 		if (session?.activeOrganizationId) {
 			setActiveOrganization(session.activeOrganizationId);
 		}
-	}, [session?.activeOrganizationId, setActiveOrganization]);
+		if (organizations) {
+			setOrganizations(organizations);
+		}
+	}, [
+		session?.activeOrganizationId,
+		setActiveOrganization,
+		organizations,
+		setOrganizations,
+	]);
 
 	return (
 		<SidebarProvider>

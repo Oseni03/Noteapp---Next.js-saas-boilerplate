@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { isAdmin } from "./permissions";
+import { headers } from "next/headers";
 
 export const addMember = async (
 	organizationId: string,
@@ -42,6 +43,7 @@ export const removeMember = async (
 				organizationId,
 				memberIdOrEmail: memberId,
 			},
+			headers: await headers(),
 		});
 
 		return {
@@ -78,6 +80,7 @@ export async function updateMemberRole(
 				memberId, // required
 				organizationId,
 			},
+			headers: await headers(),
 		});
 		return { data: result, success: true };
 	} catch (error) {
