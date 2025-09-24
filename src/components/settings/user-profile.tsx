@@ -7,9 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuthState } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 export const UserProfileCard = () => {
-	const { user, updateUserProfile } = useAuthState();
+	const { user } = useAuthState();
 	const [isEditing, setIsEditing] = useState(false);
 	const [formData, setFormData] = useState({
 		name: user?.name || "",
@@ -21,9 +22,18 @@ export const UserProfileCard = () => {
 		e.preventDefault();
 		setIsLoading(true);
 		try {
-			await updateUserProfile(formData);
-			toast.success("Profile updated successfully");
-			setIsEditing(false);
+			const data = await authClient.updateUser({
+				name: formData.name,
+			});
+
+			if (!data.error && data.data) {
+				toast.success("Profile updated successfully");
+				setIsEditing(false);
+			} else {
+				throw new Error(
+					data.error?.message || "Failed to update profile"
+				);
+			}
 		} catch (error) {
 			console.log("Error updating profile: ", error);
 			toast.error("Failed to update profile: ");

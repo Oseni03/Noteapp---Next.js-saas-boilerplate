@@ -27,13 +27,10 @@ import { Organization } from "@/types";
 import { Card, CardContent } from "../ui/card";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 import { deleteOrganization } from "@/server/organizations";
-import { useAuthState } from "@/hooks/use-auth";
 
 const OrganizationCard = () => {
-	const { activeOrganization, removeOrganization } = useOrganizationStore(
-		(state) => state
-	);
-	const { isAdmin } = useAuthState();
+	const { activeOrganization, isAdmin, removeOrganization } =
+		useOrganizationStore((state) => state);
 
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [updateDialogOpen, setUpdateDialogOpen] = useState(false);

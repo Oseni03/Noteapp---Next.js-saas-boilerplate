@@ -39,10 +39,11 @@ export const MembersCard = () => {
 		activeOrganization,
 		members,
 		invitations,
+		isAdmin,
 		removeInvite,
 		removeMember: removeMemberState,
 	} = useOrganizationStore((state) => state);
-	const { user, isAdmin } = useAuthState();
+	const { user } = useAuthState();
 	const [isInviteOpen, setIsInviteOpen] = useState(false);
 	const [isMemberOpen, setIsMemberOpen] = useState(false);
 
@@ -51,6 +52,12 @@ export const MembersCard = () => {
 			toast.loading("Removing member...");
 
 			if (!activeOrganization) return;
+
+			if (!isAdmin) {
+				toast.dismiss();
+				toast.error("You do not have permission to remove members");
+				return;
+			}
 
 			const { data, error } = await removeMember(
 				activeOrganization.id,

@@ -20,9 +20,8 @@ import { upgradeSubscription } from "@/server/subscription";
 import { Organization } from "@/types";
 
 const SubscriptionCard = () => {
-	const { activeOrganization, updateOrganization } = useOrganizationStore(
-		(state) => state
-	);
+	const { activeOrganization, isAdmin, updateOrganization } =
+		useOrganizationStore((state) => state);
 	const [selectedPlan, setSelectedPlan] = useState("free");
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -32,6 +31,14 @@ const SubscriptionCard = () => {
 			toast.loading("Updating subscription...");
 
 			if (!activeOrganization) return;
+
+			if (!isAdmin) {
+				toast.dismiss();
+				toast.error(
+					"You do not have permission to upgrade subscription"
+				);
+				return;
+			}
 
 			const { success, data, error } = await upgradeSubscription(
 				activeOrganization.id,
@@ -105,7 +112,7 @@ const SubscriptionCard = () => {
 							</p>
 						</div>
 						<DialogTrigger asChild>
-							<Button variant="outline">
+							<Button variant="outline" disabled={!isAdmin}>
 								{activeOrganization?.subscription ===
 								"enterprise"
 									? "Contact Sales"

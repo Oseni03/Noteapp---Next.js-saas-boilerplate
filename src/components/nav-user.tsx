@@ -28,9 +28,11 @@ import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useAuthState } from "@/hooks/use-auth";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 
 export function NavUser() {
-	const { user, isAdmin } = useAuthState();
+	const { isAdmin } = useOrganizationStore((state) => state);
+	const { user } = useAuthState();
 	const { isMobile } = useSidebar();
 	const router = useRouter();
 

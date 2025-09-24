@@ -1,7 +1,6 @@
 "use server";
 
 import { auth } from "@/lib/auth";
-import { isAdmin } from "./permissions";
 import { headers } from "next/headers";
 
 export const addMember = async (
@@ -28,15 +27,6 @@ export const removeMember = async (
 	organizationId: string,
 	memberId: string
 ) => {
-	const { success } = await isAdmin();
-
-	if (!success) {
-		return {
-			success: false,
-			error: "You are not authorized to remove members.",
-		};
-	}
-
 	try {
 		const data = await auth.api.removeMember({
 			body: {
@@ -65,15 +55,6 @@ export async function updateMemberRole(
 	role: "admin" | "member" | ("admin" | "member")[]
 ) {
 	try {
-		const { success } = await isAdmin();
-
-		if (!success) {
-			return {
-				success: false,
-				error: "You are not authorized to remove members.",
-			};
-		}
-
 		const result = await auth.api.updateMemberRole({
 			body: {
 				role, // required

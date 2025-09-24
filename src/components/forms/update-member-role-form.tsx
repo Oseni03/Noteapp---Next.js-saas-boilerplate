@@ -43,8 +43,11 @@ export function UpdateMemberRoleForm({
 	memberId: string;
 	onSuccess: () => void;
 }) {
-	const { activeOrganization: organization, updateMember } =
-		useOrganizationStore((state) => state);
+	const {
+		activeOrganization: organization,
+		isAdmin,
+		updateMember,
+	} = useOrganizationStore((state) => state);
 	const [isLoading, setIsLoading] = useState(false);
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -58,6 +61,12 @@ export function UpdateMemberRoleForm({
 			setIsLoading(true);
 
 			if (!organization) return;
+
+			if (!isAdmin) {
+				toast.dismiss();
+				toast.error("You do not have permission to change member role");
+				return;
+			}
 
 			const { data, success, error } = await updateMemberRole(
 				memberId,
