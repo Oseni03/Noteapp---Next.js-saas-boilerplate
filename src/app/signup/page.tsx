@@ -24,7 +24,6 @@ const Signup = () => {
 		name: "",
 		email: "",
 		password: "",
-		company: "",
 		agreeTerms: false,
 	});
 	const [loading, setIsLoading] = useState(false);
@@ -48,7 +47,6 @@ const Signup = () => {
 			email: formData.email,
 			password: formData.password,
 			username: formData.name,
-			company: formData.company,
 		});
 
 		if (success) {
@@ -99,31 +97,16 @@ const Signup = () => {
 						</CardHeader>
 						<CardContent>
 							<form onSubmit={handleSubmit} className="space-y-4">
-								<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-									<div className="space-y-2">
-										<Label htmlFor="name">Full Name</Label>
-										<Input
-											id="name"
-											name="name"
-											placeholder="John Doe"
-											value={formData.name}
-											onChange={handleInputChange}
-											required
-										/>
-									</div>
-									<div className="space-y-2">
-										<Label htmlFor="company">
-											Company Name
-										</Label>
-										<Input
-											id="company"
-											name="company"
-											placeholder="Acme Corp"
-											value={formData.company}
-											onChange={handleInputChange}
-											required
-										/>
-									</div>
+								<div className="space-y-2">
+									<Label htmlFor="name">Full Name</Label>
+									<Input
+										id="name"
+										name="name"
+										placeholder="John Doe"
+										value={formData.name}
+										onChange={handleInputChange}
+										required
+									/>
 								</div>
 								<div className="space-y-2">
 									<Label htmlFor="email">Email Address</Label>

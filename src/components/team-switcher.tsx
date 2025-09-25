@@ -29,11 +29,13 @@ import {
 } from "./ui/dialog";
 import { CreateOrganizationForm } from "./forms/create-organization-form";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { useSubscriptionStore } from "@/zustand/providers/subscription-store-provider";
 
 export function TeamSwitcher() {
 	const { isMobile } = useSidebar();
 	const { organizations, activeOrganization, setActiveOrganization } =
 		useOrganizationStore((state) => state);
+	const { loadSubscription } = useSubscriptionStore((state) => state);
 	const [dialogOpen, setDialogOpen] = React.useState(false);
 
 	const handleChangeOrganization = async (organizationId: string) => {
@@ -50,6 +52,7 @@ export function TeamSwitcher() {
 
 			if (data) {
 				setActiveOrganization(data.id);
+				loadSubscription(data.id);
 			}
 
 			toast.success("Organization switched successfully");

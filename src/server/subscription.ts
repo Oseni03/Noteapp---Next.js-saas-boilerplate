@@ -2,8 +2,30 @@
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { SUBSCRIPTION_PLANS } from "@/lib/utils";
+import { FREE_PLAN, SUBSCRIPTION_PLANS } from "@/lib/utils";
 import { headers } from "next/headers";
+
+export async function createFreeSubscription(organizationId: string) {
+	const freePlan = FREE_PLAN;
+	if (!freePlan) throw new Error("Free plan not found in subscription plans");
+
+	// Create a free subscription that expires in 1 year
+	const currentPeriodEnd = new Date();
+	currentPeriodEnd.setFullYear(currentPeriodEnd.getFullYear() + 1);
+
+	await prisma.subscription.create({
+		data: {
+			organizationId,
+			polarSubscriptionId: `free_${organizationId}`, // Unique identifier for free subscriptions
+			status: "active",
+			planName: freePlan.name,
+			amount: 0,
+			currency: "USD",
+			currentPeriodEnd,
+			cancelAtPeriodEnd: false,
+		},
+	});
+}
 
 export async function upgradeSubscription(
 	organizationId: string,

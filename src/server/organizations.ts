@@ -50,6 +50,7 @@ export async function getActiveOrganization(userId: string) {
 				},
 			},
 			invitations: true,
+			subscription: true,
 		},
 	});
 

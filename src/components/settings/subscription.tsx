@@ -2,34 +2,24 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
-import { Building2, CheckCircle, Crown, Loader2, Zap } from "lucide-react";
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "../ui/dialog";
+import { Building2, Crown, Zap } from "lucide-react";
 import { SUBSCRIPTION_PLANS } from "@/lib/utils";
 import { toast } from "sonner";
-import { useState } from "react";
-import { Badge } from "../ui/badge";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
-import { upgradeSubscription } from "@/server/subscription";
-import { Organization } from "@/types";
+import { useSubscriptionStore } from "@/zustand/providers/subscription-store-provider";
 
 const SubscriptionCard = () => {
-	const { activeOrganization, isAdmin, updateOrganization } =
-		useOrganizationStore((state) => state);
-	const [selectedPlan, setSelectedPlan] = useState("free");
-	const [isLoading, setIsLoading] = useState(false);
-	const [isUpgradeDialogOpen, setIsUpgradeDialogOpen] = useState(false);
+	const { activeOrganization, isAdmin } = useOrganizationStore(
+		(state) => state
+	);
+	const subscription = useSubscriptionStore((state) => state.subscription);
+	const subscribe = useSubscriptionStore((state) => state.subscribe);
+
+	const productIds = SUBSCRIPTION_PLANS.map((plan) => plan.productId);
 
 	const handleSubscriptionUpgrade = async () => {
 		try {
-			setIsLoading(true);
-			toast.loading("Updating subscription...");
+			toast.loading("Creating checkout session...");
 
 			if (!activeOrganization) return;
 
@@ -41,27 +31,13 @@ const SubscriptionCard = () => {
 				return;
 			}
 
-			const { success, data, error } = await upgradeSubscription(
-				activeOrganization.id,
-				selectedPlan
-			);
-
-			if (!success) {
-				throw new Error(
-					`Failed to update tenent subscription: ${error}`
-				);
-			}
-			if (data) {
-				updateOrganization(data as Organization);
-				toast.dismiss();
-				toast.success("Tenant subscription updated successful");
-			}
-		} catch (error) {
-			console.error("Error updating tenant subscription:", error);
+			await subscribe(activeOrganization.id, productIds);
 			toast.dismiss();
-			toast.error("Unauthorized to upgrade plan");
-		} finally {
-			setIsLoading(false);
+			toast.success("Redirecting to checkout...");
+		} catch (error) {
+			console.error("Error creating checkout session:", error);
+			toast.dismiss();
+			toast.error("Failed to create checkout session");
 		}
 	};
 
@@ -85,151 +61,72 @@ const SubscriptionCard = () => {
 	};
 
 	return (
-		<Dialog>
-			<Card>
-				<CardHeader>
-					<CardTitle className="flex items-center gap-2">
-						{activeOrganization &&
-							getSubscriptionIcon(
-								activeOrganization?.subscription || "free"
-							)}
-						Subscription Plan
-					</CardTitle>
-				</CardHeader>
-				<CardContent className="space-y-4">
-					<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-						<div>
-							<h3 className="text-lg font-semibold capitalize">
-								{activeOrganization?.subscription} Plan
-							</h3>
-							<p className="text-sm text-muted-foreground">
-								Perfect for{" "}
-								{activeOrganization?.subscription ===
-								"enterprise"
-									? "large organizations"
-									: activeOrganization?.subscription === "pro"
-									? "growing teams"
-									: "small teams"}
-							</p>
-						</div>
-						<DialogTrigger asChild>
-							<Button
-								variant="outline"
-								disabled={!isAdmin}
-								className="w-full sm:w-auto"
-							>
-								{activeOrganization?.subscription ===
-								"enterprise"
-									? "Contact Sales"
-									: "Upgrade Plan"}
-							</Button>
-						</DialogTrigger>
-					</div>
-
-					<div className="border-t pt-4">
-						<h4 className="font-medium mb-3">Features included:</h4>
-						<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-							{activeOrganization &&
-								getSubscriptionFeatures(
-									activeOrganization.subscription || "free"
-								)?.map((feature, index) => (
-									<div
-										key={index}
-										className="flex items-start sm:items-center gap-2 text-sm"
-									>
-										<div className="w-1.5 h-1.5 mt-1.5 sm:mt-0 rounded-full bg-primary flex-shrink-0" />
-										<span className="flex-1">
-											{feature}
-										</span>
-									</div>
-								))}
-						</div>
-					</div>
-				</CardContent>
-			</Card>
-			<DialogContent showCloseButton={true}>
-				<DialogHeader>
-					<DialogTitle>Upgrade subscription</DialogTitle>
-					<DialogDescription>
-						Make changes to organization subscription here.
-					</DialogDescription>
-				</DialogHeader>
-				<div className="space-y-6">
-					<div className="space-y-3">
-						{SUBSCRIPTION_PLANS.map((plan) => (
-							<Card
-								key={plan.id}
-								className={`cursor-pointer transition-all hover:shadow-md ${
-									selectedPlan === plan.id
-										? "ring-2 ring-primary"
-										: ""
-								}`}
-								onClick={() => setSelectedPlan(plan.id)}
-							>
-								<CardContent className="p-4">
-									<div className="flex items-center justify-between">
-										<div className="flex items-center gap-3">
-											<div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-												<plan.icon className="w-4 h-4" />
-											</div>
-											<div>
-												<div className="flex items-center gap-2">
-													<span className="font-medium">
-														{plan.name}
-													</span>
-													{plan.popular && (
-														<Badge
-															variant="secondary"
-															className="text-xs"
-														>
-															Popular
-														</Badge>
-													)}
-												</div>
-												<div className="text-sm text-muted-foreground">
-													<span className="font-medium">
-														{plan.price}
-													</span>
-													<span>{plan.period}</span>
-												</div>
-											</div>
-										</div>
-										<div
-											className={`w-4 h-4 rounded-full border-2 ${
-												selectedPlan === plan.id
-													? "bg-primary border-primary"
-													: "border-muted-foreground"
-											}`}
-										/>
-									</div>
-									<div className="mt-3 ml-11">
-										<div className="flex flex-wrap gap-2">
-											{plan.features
-												.slice(0, 3)
-												.map((feature, index) => (
-													<div
-														key={index}
-														className="flex items-center gap-1 text-xs text-muted-foreground"
-													>
-														<CheckCircle className="w-3 h-3 text-success" />
-														{feature}
-													</div>
-												))}
-										</div>
-									</div>
-								</CardContent>
-							</Card>
-						))}
-					</div>
-					<Button onClick={handleSubscriptionUpgrade}>
-						Update{" "}
-						{isLoading && (
-							<Loader2 className="size-4 animate-spin" />
+		<Card>
+			<CardHeader>
+				<CardTitle className="flex items-center gap-2">
+					{activeOrganization &&
+						getSubscriptionIcon(
+							activeOrganization?.subscription?.planName || "Free"
 						)}
+					Subscription Plan
+				</CardTitle>
+			</CardHeader>
+			<CardContent className="space-y-4">
+				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+					<div>
+						<h3 className="text-lg font-semibold capitalize">
+							{subscription ? subscription.planName : "Free"} Plan
+						</h3>
+						<p className="text-sm text-muted-foreground">
+							{subscription ? (
+								<>
+									${(subscription.amount / 100).toFixed(2)}/
+									{subscription.currency.toLowerCase()}
+									{subscription.status === "active" &&
+										subscription.cancelAtPeriodEnd &&
+										" (Cancels at period end)"}
+								</>
+							) : (
+								"Free tier"
+							)}
+						</p>
+						{subscription && (
+							<p className="text-xs text-muted-foreground mt-1">
+								Current period ends:{" "}
+								{new Date(
+									subscription.currentPeriodEnd
+								).toLocaleDateString()}
+							</p>
+						)}
+					</div>
+					<Button
+						variant="outline"
+						disabled={!isAdmin}
+						className="w-full sm:w-auto"
+						onClick={handleSubscriptionUpgrade}
+					>
+						Upgrade Plan
 					</Button>
 				</div>
-			</DialogContent>
-		</Dialog>
+
+				<div className="border-t pt-4">
+					<h4 className="font-medium mb-3">Features included:</h4>
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+						{getSubscriptionFeatures(
+							subscription?.planName || "free"
+						)?.map((feature, index) => (
+							<div
+								key={index}
+								className="flex items-start sm:items-center gap-2 text-sm"
+							>
+								<div className="w-1.5 h-1.5 mt-1.5 sm:mt-0 rounded-full bg-primary flex-shrink-0" />
+								<span className="flex-1">{feature}</span>
+							</div>
+						))}
+					</div>
+				</div>
+			</CardContent>
+		</Card>
 	);
 };
 

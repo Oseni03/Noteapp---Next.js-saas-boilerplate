@@ -3,12 +3,9 @@
 import { type ReactNode, createContext, useRef, useContext } from "react";
 import { useStore } from "zustand";
 import {
-	OrganizationState,
 	type OrganizationStore,
 	createOrganizationStore,
 } from "@/zustand/stores/organization-store";
-import { authClient } from "@/lib/auth-client";
-import { Organization } from "@/types";
 
 export type OrganizationStoreApi = ReturnType<typeof createOrganizationStore>;
 

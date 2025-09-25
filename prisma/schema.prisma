@@ -79,20 +79,20 @@ model Verification {
 }
 
 model Organization {
-  id          String       @id
-  name        String
-  slug        String?
-  logo        String?
-  createdAt   DateTime
-  metadata    String?
-  members     Member[]
-  Notes       Note[]
-  invitations Invitation[]
+  id              String        @id
+  name            String
+  slug            String?
+  logo            String?
+  createdAt       DateTime
+  metadata        String?
+  polarCustomerId String?
+  subscription    Subscription?
+  members         Member[]
+  Notes           Note[]
+  invitations     Invitation[]
 
   maxUsers Int?
   maxNotes Int?
-
-  subscription String?
 
   @@unique([slug])
   @@map("organization")
@@ -125,16 +125,39 @@ model Invitation {
 }
 
 model Note {
-  id             String   @id @default(cuid())
-  title          String
-  content        String
-  authorId       String
-  tenantId       String
-  tags           String[]
-  isPublic       Boolean
-  createdAt      DateTime
-  updatedAt      DateTime
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  authorId  String
+  tenantId  String
+  tags      String[]
+  isPublic  Boolean
+  createdAt DateTime
+  updatedAt DateTime
 
   author       User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
   organization Organization @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id             String @id @default(cuid())
+  organizationId String @unique
+
+  // Polar data
+  polarSubscriptionId String @unique
+  status              String // "active", "canceled", etc.
+  planName            String
+  amount              Int // in cents
+  currency            String @default("USD")
+
+  // Dates
+  currentPeriodEnd  DateTime
+  cancelAtPeriodEnd Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@map("subscriptions")
 }

@@ -65,6 +65,9 @@ CREATE TABLE "public"."organization" (
     "logo" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL,
     "metadata" TEXT,
+    "polarCustomerId" TEXT,
+    "maxUsers" INTEGER,
+    "maxNotes" INTEGER,
 
     CONSTRAINT "organization_pkey" PRIMARY KEY ("id")
 );
@@ -99,13 +102,30 @@ CREATE TABLE "public"."Note" (
     "title" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "authorId" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
     "tags" TEXT[],
     "isPublic" BOOLEAN NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Note_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "public"."subscriptions" (
+    "id" TEXT NOT NULL,
+    "organizationId" TEXT NOT NULL,
+    "polarSubscriptionId" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "planName" TEXT NOT NULL,
+    "amount" INTEGER NOT NULL,
+    "currency" TEXT NOT NULL DEFAULT 'USD',
+    "currentPeriodEnd" TIMESTAMP(3) NOT NULL,
+    "cancelAtPeriodEnd" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -116,6 +136,12 @@ CREATE UNIQUE INDEX "session_token_key" ON "public"."session"("token");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "organization_slug_key" ON "public"."organization"("slug");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "subscriptions_organizationId_key" ON "public"."subscriptions"("organizationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "subscriptions_polarSubscriptionId_key" ON "public"."subscriptions"("polarSubscriptionId");
 
 -- AddForeignKey
 ALTER TABLE "public"."session" ADD CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -139,4 +165,7 @@ ALTER TABLE "public"."invitation" ADD CONSTRAINT "invitation_inviterId_fkey" FOR
 ALTER TABLE "public"."Note" ADD CONSTRAINT "Note_authorId_fkey" FOREIGN KEY ("authorId") REFERENCES "public"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."Note" ADD CONSTRAINT "Note_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."Note" ADD CONSTRAINT "Note_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "public"."organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "public"."subscriptions" ADD CONSTRAINT "subscriptions_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;

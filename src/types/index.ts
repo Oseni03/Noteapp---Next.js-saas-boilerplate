@@ -27,7 +27,7 @@ export interface Organization {
 	id: string;
 	name: string;
 	slug: string;
-	subscription?: "free" | "pro" | "enterprise";
+	subscription?: Subscription;
 	maxUsers?: number;
 	maxNotes?: number;
 	createdAt: Date;
@@ -57,4 +57,18 @@ export interface InvitationData {
 	status: "pending" | "accepted" | "rejected" | "cancelled";
 	createdAt: string;
 	expiresAt: string;
+}
+
+export interface Subscription {
+	id: string;
+	organizationId: string;
+	polarSubscriptionId: string;
+	status: string;
+	planName: string;
+	amount: number;
+	currency: string;
+	currentPeriodEnd: string;
+	cancelAtPeriodEnd: boolean;
+	createdAt: string;
+	updatedAt: string;
 }

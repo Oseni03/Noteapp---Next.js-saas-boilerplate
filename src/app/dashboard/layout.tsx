@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { useSubscriptionStore } from "@/zustand/providers/subscription-store-provider";
 
 export default function Page({
 	children,
@@ -20,6 +21,7 @@ export default function Page({
 	const { setActiveOrganization, setOrganizations } = useOrganizationStore(
 		(state) => state
 	);
+	const { loadSubscription } = useSubscriptionStore((state) => state);
 	const { data: session } = authClient.useSession();
 	const { data: organizations } = authClient.useListOrganizations();
 
@@ -27,6 +29,7 @@ export default function Page({
 	useEffect(() => {
 		if (session?.activeOrganizationId) {
 			setActiveOrganization(session.activeOrganizationId);
+			loadSubscription(session.activeOrganizationId);
 		}
 		if (organizations) {
 			setOrganizations(organizations);
@@ -36,6 +39,7 @@ export default function Page({
 		setActiveOrganization,
 		organizations,
 		setOrganizations,
+		loadSubscription,
 	]);
 
 	return (

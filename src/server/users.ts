@@ -4,7 +4,6 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import slugify from "@sindresorhus/slugify";
 
 export const getCurrentUser = async () => {
 	const session = await auth.api.getSession({
@@ -56,27 +55,17 @@ export const signUp = async ({
 	email,
 	password,
 	username,
-	company,
 }: {
 	email: string;
 	password: string;
 	username: string;
-	company: string;
 }) => {
 	try {
-		const { user } = await auth.api.signUpEmail({
+		await auth.api.signUpEmail({
 			body: {
 				email,
 				password,
 				name: username,
-			},
-		});
-
-		await auth.api.createOrganization({
-			body: {
-				name: company,
-				slug: slugify(company),
-				userId: user.id,
 			},
 		});
 
