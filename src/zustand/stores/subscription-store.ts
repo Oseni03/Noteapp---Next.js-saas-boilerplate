@@ -150,20 +150,3 @@ export const createSubscriptionStore = (
 		)
 	);
 };
-
-// Computed selectors
-// export const useSubscriptionSelectors = () => {
-// 	const { subscription } = useSubscriptionStore();
-
-// 	return {
-// 		hasActiveSubscription: subscription?.status === "active",
-// 		isTrialing: subscription?.status === "trialing",
-// 		isCanceled: subscription?.status === "canceled",
-// 		planName: subscription?.planName || null,
-// 		renewalDate: subscription?.currentPeriodEnd
-// 			? new Date(subscription.currentPeriodEnd)
-// 			: null,
-// 		monthlyAmount: subscription ? subscription.amount / 100 : 0,
-// 		willCancelAtPeriodEnd: subscription?.cancelAtPeriodEnd || false,
-// 	};
-// };

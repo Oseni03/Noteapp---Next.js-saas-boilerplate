@@ -140,24 +140,32 @@ model Note {
 }
 
 model Subscription {
-  id             String @id @default(cuid())
-  organizationId String @unique
+  id                          String    @id @default(cuid())
+  createdAt                   DateTime
+  modifiedAt                  DateTime?
+  amount                      Int
+  currency                    String
+  recurringInterval           String
+  status                      String
+  currentPeriodStart          DateTime
+  currentPeriodEnd            DateTime
+  cancelAtPeriodEnd           Boolean   @default(false)
+  canceledAt                  DateTime?
+  startedAt                   DateTime
+  endsAt                      DateTime?
+  endedAt                     DateTime?
+  customerId                  String
+  productId                   String
+  discountId                  String?
+  checkoutId                  String
+  customerCancellationReason  String?
+  customerCancellationComment String?
+  metadata                    String? // JSON string
+  customFieldData             String? // JSON string
+  organizationId              String    @unique
 
-  // Polar data
-  polarSubscriptionId String @unique
-  status              String // "active", "canceled", etc.
-  planName            String
-  amount              Int // in cents
-  currency            String @default("USD")
-
-  // Dates
-  currentPeriodEnd  DateTime
-  cancelAtPeriodEnd Boolean  @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  // Relation to Organization model
   organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
-  @@map("subscriptions")
+  @@map("subscription")
 }

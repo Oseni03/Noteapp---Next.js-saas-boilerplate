@@ -10,11 +10,7 @@ import {
 } from "@/server/organizations";
 import { polar, checkout, portal, webhooks } from "@polar-sh/better-auth";
 import { Polar } from "@polar-sh/sdk";
-import {
-	handleSubscriptionCanceled,
-	handleSubscriptionCreated,
-	handleSubscriptionUpdated,
-} from "@/server/polar";
+import { handleSubscriptionWebhook } from "@/server/polar";
 import { SUBSCRIPTION_PLANS } from "./utils";
 import { createFreeSubscription } from "@/server/subscription";
 
@@ -40,6 +36,14 @@ export const auth = betterAuth({
 	database: prismaAdapter(prisma, {
 		provider: "postgresql", // or "mysql", "postgresql", ...etc
 	}),
+	onAPIError: {
+		throw: true,
+		onError: (error) => {
+			// Custom error handling
+			console.error("Auth error:", error);
+		},
+		errorURL: "/auth/error",
+	},
 	databaseHooks: {
 		user: {
 			create: {
@@ -140,9 +144,10 @@ export const auth = betterAuth({
 				portal(),
 				webhooks({
 					secret: process.env.POLAR_WEBHOOK_SECRET!,
-					onSubscriptionCreated: handleSubscriptionCreated,
-					onSubscriptionUpdated: handleSubscriptionUpdated,
-					onSubscriptionCanceled: handleSubscriptionCanceled,
+					onPayload: async (payload) => {
+						console.log("Received Polar webhook:", payload);
+						await handleSubscriptionWebhook(payload);
+					},
 				}),
 			],
 		}),

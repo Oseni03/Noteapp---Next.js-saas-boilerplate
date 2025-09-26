@@ -62,13 +62,25 @@ export interface InvitationData {
 export interface Subscription {
 	id: string;
 	organizationId: string;
-	polarSubscriptionId: string;
 	status: string;
-	planName: string;
 	amount: number;
 	currency: string;
+	recurringInterval: string;
+	currentPeriodStart: string;
 	currentPeriodEnd: string;
 	cancelAtPeriodEnd: boolean;
+	canceledAt?: string;
+	startedAt: string;
+	endsAt?: string;
+	endedAt?: string;
+	customerId: string;
+	productId: string;
+	discountId?: string;
+	checkoutId: string;
+	customerCancellationReason?: string;
+	customerCancellationComment?: string;
+	metadata?: string;
+	customFieldData?: string;
 	createdAt: string;
-	updatedAt: string;
+	modifiedAt?: string;
 }

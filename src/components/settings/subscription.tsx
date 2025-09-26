@@ -49,8 +49,13 @@ const SubscriptionCard = () => {
 		return plan?.features;
 	};
 
-	const getSubscriptionIcon = (subscription: string) => {
-		switch (subscription) {
+	const getPlanFromProductId = (productId: string) => {
+		return SUBSCRIPTION_PLANS.find((plan) => plan.productId === productId);
+	};
+
+	const getSubscriptionIcon = (productId: string) => {
+		const plan = getPlanFromProductId(productId);
+		switch (plan?.id) {
 			case "enterprise":
 				return <Crown className="w-5 h-5 text-purple-500" />;
 			case "pro":
@@ -64,9 +69,9 @@ const SubscriptionCard = () => {
 		<Card>
 			<CardHeader>
 				<CardTitle className="flex items-center gap-2">
-					{activeOrganization &&
+					{activeOrganization?.subscription &&
 						getSubscriptionIcon(
-							activeOrganization?.subscription?.planName || "Free"
+							activeOrganization.subscription.productId
 						)}
 					Subscription Plan
 				</CardTitle>
@@ -75,7 +80,11 @@ const SubscriptionCard = () => {
 				<div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
 					<div>
 						<h3 className="text-lg font-semibold capitalize">
-							{subscription ? subscription.planName : "Free"} Plan
+							{subscription
+								? getPlanFromProductId(subscription.productId)
+										?.name
+								: "Free"}{" "}
+							Plan
 						</h3>
 						<p className="text-sm text-muted-foreground">
 							{subscription ? (
@@ -84,19 +93,38 @@ const SubscriptionCard = () => {
 									{subscription.currency.toLowerCase()}
 									{subscription.status === "active" &&
 										subscription.cancelAtPeriodEnd &&
-										" (Cancels at period end)"}
+										` (Cancels on ${new Date(
+											subscription.endsAt ||
+												subscription.currentPeriodEnd
+										).toLocaleDateString()})`}
 								</>
 							) : (
 								"Free tier"
 							)}
 						</p>
 						{subscription && (
-							<p className="text-xs text-muted-foreground mt-1">
-								Current period ends:{" "}
-								{new Date(
-									subscription.currentPeriodEnd
-								).toLocaleDateString()}
-							</p>
+							<>
+								<p className="text-xs text-muted-foreground mt-1">
+									Current period:{" "}
+									{new Date(
+										subscription.currentPeriodStart
+									).toLocaleDateString()}{" "}
+									-{" "}
+									{new Date(
+										subscription.currentPeriodEnd
+									).toLocaleDateString()}
+								</p>
+								{subscription.status === "active" &&
+									subscription.cancelAtPeriodEnd &&
+									subscription.customerCancellationReason && (
+										<p className="text-xs text-muted-foreground mt-1">
+											Cancellation reason:{" "}
+											{
+												subscription.customerCancellationReason
+											}
+										</p>
+									)}
+							</>
 						)}
 					</div>
 					<Button
@@ -113,7 +141,8 @@ const SubscriptionCard = () => {
 					<h4 className="font-medium mb-3">Features included:</h4>
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 						{getSubscriptionFeatures(
-							subscription?.planName || "free"
+							getPlanFromProductId(subscription?.productId || "")
+								?.id || "free"
 						)?.map((feature, index) => (
 							<div
 								key={index}
