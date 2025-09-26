@@ -16,16 +16,16 @@ import { FileText, ArrowLeft, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signIn } from "@/server/users";
-import { useAuthState } from "@/hooks/use-auth";
+import { authClient } from "@/lib/auth-client";
 
 const Login = () => {
-	const { isAuthenticated } = useAuthState();
+	const { user } = authClient.useSession().data || {};
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [loading, setIsLoading] = useState(false);
 	const router = useRouter();
 
-	if (isAuthenticated) {
+	if (!!user) {
 		router.push("/dashboard");
 	}
 

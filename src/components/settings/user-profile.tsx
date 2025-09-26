@@ -5,12 +5,11 @@ import { User, Save } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuthState } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
 export const UserProfileCard = () => {
-	const { user } = useAuthState();
+	const { user } = authClient.useSession().data || {};
 	const [isEditing, setIsEditing] = useState(false);
 	const [formData, setFormData] = useState({
 		name: user?.name || "",

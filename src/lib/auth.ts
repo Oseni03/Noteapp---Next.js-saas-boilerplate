@@ -54,7 +54,7 @@ export const auth = betterAuth({
 						user.id,
 						{
 							name: "Personal",
-							slug: "personal",
+							slug: `personal-${user.id}`,
 						}
 					);
 

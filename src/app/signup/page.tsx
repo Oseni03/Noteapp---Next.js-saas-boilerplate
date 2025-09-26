@@ -17,7 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signUp } from "@/server/users";
-import { useAuthState } from "@/hooks/use-auth";
+import { authClient } from "@/lib/auth-client";
 
 const Signup = () => {
 	const [formData, setFormData] = useState({
@@ -27,10 +27,10 @@ const Signup = () => {
 		agreeTerms: false,
 	});
 	const [loading, setIsLoading] = useState(false);
-	const { isAuthenticated } = useAuthState();
+	const { user } = authClient.useSession().data || {};
 	const router = useRouter();
 
-	if (isAuthenticated) {
+	if (!!user) {
 		router.push("/dashboard");
 	}
 

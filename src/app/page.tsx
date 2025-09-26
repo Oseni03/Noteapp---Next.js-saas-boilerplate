@@ -14,13 +14,12 @@ import {
 	ArrowRight,
 } from "lucide-react";
 import { SUBSCRIPTION_PLANS } from "@/lib/utils";
-import { useAuthState } from "@/hooks/use-auth";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 const Page = () => {
-	const { isAuthenticated } = useAuthState();
+	const { user } = authClient.useSession().data || {};
 	const router = useRouter();
 
 	const features = [
@@ -75,7 +74,7 @@ const Page = () => {
 						</div>
 						<span className="text-xl font-bold">NotesApp</span>
 					</div>
-					{isAuthenticated ? (
+					{!!user ? (
 						<div className="flex items-center gap-4">
 							<Button onClick={handleSignOut} variant="ghost">
 								Sign Out

@@ -19,7 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Page = () => {
 	return (
-		<div className="p-4 sm:p-6 space-y-6 max-w-[1200px] mx-auto">
+		<div className="p-4 sm:p-6 space-y-6 mx-auto">
 			{/* Header */}
 			<div>
 				<h1 className="text-xl sm:text-2xl font-bold text-foreground">

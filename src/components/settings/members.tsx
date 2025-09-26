@@ -16,7 +16,6 @@ import {
 	DialogTrigger,
 } from "@/components/ui/dialog";
 import { InvitationForm } from "@/components/forms/invitation-form";
-import { useAuthState } from "@/hooks/use-auth";
 import { UpdateMemberRoleForm } from "@/components/forms/update-member-role-form";
 import {
 	AlertDialog,
@@ -33,6 +32,7 @@ import { toast } from "sonner";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 import { removeMember } from "@/server/members";
 import { cancelInvitation } from "@/server/invitations";
+import { authClient } from "@/lib/auth-client";
 
 export const MembersCard = () => {
 	const {
@@ -44,7 +44,7 @@ export const MembersCard = () => {
 		removeInvite,
 		removeMember: removeMemberState,
 	} = useOrganizationStore((state) => state);
-	const { user } = useAuthState();
+	const { user } = authClient.useSession().data || {};
 	const [isInviteOpen, setIsInviteOpen] = useState(false);
 	const [isMemberOpen, setIsMemberOpen] = useState(false);
 
