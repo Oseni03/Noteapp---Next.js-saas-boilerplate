@@ -48,6 +48,7 @@ export const auth = betterAuth({
 		user: {
 			create: {
 				after: async (user) => {
+					console.log("New user created:", user);
 					// Create a personal organization for the user
 					const { data, success } = await createOrganization(
 						user.id,
