@@ -18,7 +18,7 @@ export const SUBSCRIPTION_PLANS = [
 		icon: Building2,
 		features: ["3 users", "50 notes"],
 		popular: false,
-		productId: "prod_NIY0bX7O1gL3bM",
+		productId: process.env.FREE_PLAN_ID!,
 	},
 	{
 		id: "pro",
@@ -31,7 +31,7 @@ export const SUBSCRIPTION_PLANS = [
 		icon: Zap,
 		features: ["Unlimited users", "Unlimited notes"],
 		popular: true,
-		productId: "prod_NIY0bX7O1gL3bM",
+		productId: process.env.PRO_PLAN_ID!,
 	},
 ];
 
