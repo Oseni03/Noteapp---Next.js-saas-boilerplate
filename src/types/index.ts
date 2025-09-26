@@ -30,8 +30,6 @@ export interface Organization {
 	name: string;
 	slug: string;
 	subscription?: Subscription;
-	maxUsers?: number;
-	maxNotes?: number;
 	createdAt: Date;
 	logo?: string | null;
 	// metadata?: any;

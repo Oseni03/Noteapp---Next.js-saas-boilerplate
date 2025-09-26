@@ -92,30 +92,6 @@ export const auth = betterAuth({
 				admin,
 				member,
 			},
-			schema: {
-				organization: {
-					additionalFields: {
-						maxUsers: {
-							type: "number",
-							input: true,
-							required: false,
-							defaultValue: 3,
-						},
-						maxNotes: {
-							type: "number",
-							input: true,
-							required: false,
-							defaultValue: 50,
-						},
-						subscription: {
-							type: "string",
-							input: true,
-							required: false,
-							defaultValue: "free",
-						},
-					},
-				},
-			},
 		}),
 		nextCookies(),
 		customSession(async ({ user, session }) => {

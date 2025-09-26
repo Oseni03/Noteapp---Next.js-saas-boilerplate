@@ -11,17 +11,14 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
-import { useSubscriptionStore } from "@/zustand/providers/subscription-store-provider";
 
 export default function Page({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const { setActiveOrganization, setOrganizations } = useOrganizationStore(
-		(state) => state
-	);
-	const { loadSubscription } = useSubscriptionStore((state) => state);
+	const { setActiveOrganization, setOrganizations, loadSubscription } =
+		useOrganizationStore((state) => state);
 	const { data: session } = authClient.useSession();
 	const { data: organizations } = authClient.useListOrganizations();
 

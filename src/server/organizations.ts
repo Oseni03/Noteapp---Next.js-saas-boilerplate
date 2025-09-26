@@ -150,16 +150,25 @@ export async function createOrganization(
 	data: { name: string; slug: string }
 ) {
 	try {
-		const result = await auth.api.createOrganization({
-			body: {
-				...data, // required
-				userId, // server-only
-				keepCurrentActiveOrganization: true,
+		// Direct database creation bypassing auth API
+		const organization = await prisma.organization.create({
+			data: {
+				name: data.name,
+				slug: data.slug,
+				createdAt: new Date(),
+				members: {
+					create: {
+						userId: userId,
+						role: "admin",
+					},
+				},
 			},
-			// This endpoint requires session cookies.
-			headers: await headers(),
+			include: {
+				members: true,
+			},
 		});
-		return { data: result, success: true };
+
+		return { data: organization, success: true };
 	} catch (error) {
 		console.error("Error creating organization: ", error);
 		return { success: false, error };

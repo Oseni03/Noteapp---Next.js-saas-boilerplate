@@ -1,7 +1,8 @@
+import { authClient } from "@/lib/auth-client";
 import { getOrganizationById } from "@/server/organizations";
 import { getCurrentUser } from "@/server/users";
 import { Member, Organization } from "@/types";
-import { Invitation } from "@prisma/client";
+import { Invitation, Subscription } from "@prisma/client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -10,8 +11,10 @@ export type OrganizationState = {
 	members: Member[];
 	invitations: Invitation[];
 	organizations: Organization[];
+	subscription?: Subscription;
 	isAdmin: boolean;
 	isLoading: boolean;
+	error: string | null;
 };
 
 type OrganizationActions = {
@@ -19,7 +22,8 @@ type OrganizationActions = {
 	setOrganizationData: (
 		organization: Organization,
 		members: Member[],
-		invitations: Invitation[]
+		invitations: Invitation[],
+		subscription: Subscription
 	) => void;
 	setOrganizations: (organizations: Organization[]) => Promise<void>;
 	addOrganization: (organization: Organization) => Promise<void>;
@@ -29,6 +33,10 @@ type OrganizationActions = {
 	removeInvite: (invitationId: string) => Promise<void>;
 	updateMember: (member: Member) => Promise<void>;
 	removeMember: (memberId: string) => Promise<void>;
+	loadSubscription: (organizationId: string) => Promise<void>;
+	subscribe: (organizationId: string, products: string[]) => Promise<void>;
+	openPortal: () => Promise<void>;
+	updateSubscription: (subscription: Subscription) => void;
 	setLoading: (loading: boolean) => void;
 	setAdmin: (loading: boolean) => void;
 };
@@ -40,8 +48,10 @@ export const defaultInitState: OrganizationState = {
 	members: [],
 	invitations: [],
 	organizations: [],
+	subscription: undefined,
 	isAdmin: false,
 	isLoading: false,
+	error: null,
 };
 
 export const createOrganizationStore = (
@@ -52,12 +62,18 @@ export const createOrganizationStore = (
 			(set, get) => ({
 				...initState,
 				// Separate sync function for setting organization data
-				setOrganizationData: (organization, members, invitations) => {
+				setOrganizationData: (
+					organization,
+					members,
+					invitations,
+					subscription
+				) => {
 					set((state) => ({
 						...state,
 						activeOrganization: organization,
-						members: members,
-						invitations: invitations,
+						members,
+						invitations,
+						subscription,
 						isLoading: false,
 					}));
 				},
@@ -100,7 +116,8 @@ export const createOrganizationStore = (
 							get().setOrganizationData(
 								data as Organization,
 								(data?.members as Member[]) || [],
-								data?.invitations || []
+								data?.invitations || [],
+								data.subscription!
 							);
 							get().setAdmin(isAdmin);
 						} else {
@@ -172,6 +189,105 @@ export const createOrganizationStore = (
 							(member) => member.id !== memberId
 						),
 					}));
+				},
+				loadSubscription: async (organizationId: string) => {
+					if (!organizationId) return;
+
+					set((state) => ({
+						...state,
+						isLoading: true,
+						error: null,
+					}));
+
+					try {
+						const response = await fetch(
+							`/api/subscription/${organizationId}`
+						);
+
+						if (!response.ok) {
+							if (response.status === 404) {
+								set((state) => ({
+									...state,
+									subscription: undefined,
+									isLoading: false,
+								}));
+								return;
+							}
+							throw new Error("Failed to fetch subscription");
+						}
+
+						const { data } = await response.json();
+						set((state) => ({
+							...state,
+							subscription: data,
+							isLoading: false,
+						}));
+					} catch (error) {
+						console.error("Error loading subscription:", error);
+						set((state) => ({
+							...state,
+							error:
+								error instanceof Error
+									? error.message
+									: "Failed to load subscription",
+							isLoading: false,
+						}));
+					}
+				},
+
+				subscribe: async (
+					organizationId: string,
+					products: string[]
+				) => {
+					if (!organizationId) {
+						set({ error: "Organization ID required" });
+						return;
+					}
+
+					set((state) => ({ ...state, loading: true, error: null }));
+
+					try {
+						await authClient.checkout({
+							products,
+							referenceId: organizationId,
+						});
+						// Note: subscription will be updated via webhook after successful checkout
+					} catch (error) {
+						console.error("Error creating checkout:", error);
+						set((state) => ({
+							...state,
+							error:
+								error instanceof Error
+									? error.message
+									: "Failed to create checkout",
+							isLoading: false,
+						}));
+						throw error;
+					}
+				},
+
+				openPortal: async () => {
+					set((state) => ({ ...state, loading: true, error: null }));
+
+					try {
+						await authClient.customer.portal();
+						set({ isLoading: false });
+					} catch (error) {
+						console.error("Error opening customer portal:", error);
+						set((state) => ({
+							...state,
+							error:
+								error instanceof Error
+									? error.message
+									: "Failed to open customer portal",
+							loading: false,
+						}));
+						throw error;
+					}
+				},
+
+				updateSubscription: (subscription: Subscription) => {
+					set((state) => ({ ...state, subscription }));
 				},
 			}),
 			{ name: "organization-store" }

@@ -8,19 +8,19 @@ import { Note } from "@/types";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 
 export const UsageCard = () => {
-	const { activeOrganization, members } = useOrganizationStore(
-		(state) => state
-	);
+	const { subscription, members } = useOrganizationStore((state) => state);
 	const [notes, setNotes] = useState<Note[]>([]);
-	const maxNotes = activeOrganization?.maxNotes
-		? activeOrganization?.maxNotes == 1
+
+	const maxNotes = subscription?.maxNotes
+		? subscription?.maxNotes == 1
 			? 1000000000
-			: activeOrganization?.maxNotes
+			: subscription?.maxNotes
 		: 50;
-	const maxUsers = activeOrganization?.maxUsers
-		? activeOrganization?.maxUsers == 1
+
+	const maxUsers = subscription?.maxUsers
+		? subscription?.maxUsers == 1
 			? 1000000000
-			: activeOrganization?.maxUsers
+			: subscription?.maxUsers
 		: 50;
 
 	const membersCount = members.length;

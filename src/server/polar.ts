@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from "@/lib/prisma";
+import { getPlan } from "@/lib/utils";
 
 // Helper function for safe date parsing
 function safeParseDate(dateString: string | null | undefined): Date | null {
@@ -53,6 +54,9 @@ export async function handleSubscriptionCreated(payload: any) {
 				customFieldData: payload.data.custom_field_data
 					? JSON.stringify(payload.data.custom_field_data)
 					: null,
+				// Set plan features based on product
+				maxUsers: getPlan(payload.data.product_id)?.maxUsers ?? 3,
+				maxNotes: getPlan(payload.data.product_id)?.maxNotes ?? 50,
 				organizationId: organizationId,
 			},
 		});

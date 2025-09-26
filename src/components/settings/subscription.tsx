@@ -6,14 +6,10 @@ import { Building2, Crown, Zap } from "lucide-react";
 import { SUBSCRIPTION_PLANS } from "@/lib/utils";
 import { toast } from "sonner";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
-import { useSubscriptionStore } from "@/zustand/providers/subscription-store-provider";
 
 const SubscriptionCard = () => {
-	const { activeOrganization, isAdmin } = useOrganizationStore(
-		(state) => state
-	);
-	const subscription = useSubscriptionStore((state) => state.subscription);
-	const subscribe = useSubscriptionStore((state) => state.subscribe);
+	const { activeOrganization, isAdmin, subscription, subscribe } =
+		useOrganizationStore((state) => state);
 
 	const productIds = SUBSCRIPTION_PLANS.map((plan) => plan.productId);
 

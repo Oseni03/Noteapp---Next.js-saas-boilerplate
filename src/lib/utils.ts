@@ -16,7 +16,7 @@ export const SUBSCRIPTION_PLANS = [
 		maxUsers: 3,
 		maxNotes: 50,
 		icon: Building2,
-		features: ["5 users", "50 notes"],
+		features: ["3 users", "50 notes"],
 		popular: false,
 		productId: "prod_NIY0bX7O1gL3bM",
 	},

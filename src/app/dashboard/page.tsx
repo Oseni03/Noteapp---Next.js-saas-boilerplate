@@ -22,7 +22,9 @@ import { useOrganizationStore } from "@/zustand/providers/organization-store-pro
 import { authClient } from "@/lib/auth-client";
 
 const Page = () => {
-	const { activeOrganization } = useOrganizationStore((state) => state);
+	const { activeOrganization, subscription } = useOrganizationStore(
+		(state) => state
+	);
 	const { data: session } = authClient.useSession();
 	const [notes, setNotes] = useState<Note[]>([]);
 	const [searchTerm, setSearchTerm] = useState("");
@@ -213,7 +215,7 @@ const Page = () => {
 	};
 
 	const hasReachedLimit = () => {
-		return tenantNotes.length >= (activeOrganization?.maxNotes || 50);
+		return tenantNotes.length >= (subscription?.maxNotes || 50);
 	};
 
 	return (
@@ -225,8 +227,8 @@ const Page = () => {
 						Notes
 					</h1>
 					<p className="text-muted-foreground">
-						{tenantNotes.length} of {activeOrganization?.maxNotes}{" "}
-						notes used
+						{tenantNotes.length} of {subscription?.maxNotes} notes
+						used
 					</p>
 				</div>
 				<Button
