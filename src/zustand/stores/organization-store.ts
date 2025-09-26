@@ -247,10 +247,15 @@ export const createOrganizationStore = (
 					set((state) => ({ ...state, loading: true, error: null }));
 
 					try {
-						await authClient.checkout({
+						const { data, error } = await authClient.checkout({
 							products,
 							referenceId: organizationId,
 						});
+						set({ isLoading: false });
+						if (error) {
+							throw new Error(error.message);
+						}
+						if (data?.url) window.location.href = data.url;
 						// Note: subscription will be updated via webhook after successful checkout
 					} catch (error) {
 						console.error("Error creating checkout:", error);

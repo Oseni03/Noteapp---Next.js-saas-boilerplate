@@ -115,7 +115,7 @@ export const auth = betterAuth({
 						productId: plan.productId,
 						slug: plan.id,
 					})),
-					successUrl: "/dashboard/subscription/success",
+					successUrl: "/dashboard/settings",
 					authenticatedUsersOnly: true,
 				}),
 				portal(),
