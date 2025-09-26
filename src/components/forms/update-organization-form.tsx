@@ -48,7 +48,7 @@ export function UpdateOrganizationForm({
 			toast.loading("Updating Tenants...");
 			setIsLoading(true);
 
-			const data = await updateOrganization(organization.id, values);
+			const { data } = await updateOrganization(organization.id, values);
 
 			if (data) {
 				toast.dismiss();

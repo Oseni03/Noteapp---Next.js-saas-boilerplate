@@ -28,6 +28,7 @@ import {
 import { DialogFooter } from "../ui/dialog";
 import { authClient } from "@/lib/auth-client";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { Invitation } from "better-auth/plugins";
 
 const formSchema = z.object({
 	email: z.email(),
@@ -74,7 +75,7 @@ export function InvitationForm({ onSuccess }: { onSuccess: () => void }) {
 			}
 
 			if (data) {
-				addInvitation(data);
+				addInvitation(data as Invitation);
 			}
 		} catch (error) {
 			console.error(error);

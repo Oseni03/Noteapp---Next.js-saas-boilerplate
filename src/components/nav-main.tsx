@@ -9,7 +9,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
-import { useAuthState } from "@/hooks/use-auth";
+import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 
 export function NavMain({
 	items,
@@ -22,7 +22,7 @@ export function NavMain({
 		adminOnly: boolean;
 	}[];
 }) {
-	const { isAdmin } = useAuthState();
+	const isAdmin = useOrganizationStore((state) => state.isAdmin);
 	const router = useRouter();
 	const pathname = usePathname();
 	return (

@@ -89,6 +89,7 @@ export async function getOrganizationById(orgId: string) {
 					},
 				},
 				invitations: true,
+				subscription: true,
 			},
 		});
 

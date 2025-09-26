@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { authClient } from "@/lib/auth-client";
-import { Subscription } from "@/types";
+import { Subscription } from "@prisma/client";
 
 export interface SubscriptionState {
 	subscription: Subscription | null;

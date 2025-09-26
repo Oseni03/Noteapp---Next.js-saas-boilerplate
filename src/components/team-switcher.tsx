@@ -30,6 +30,7 @@ import {
 import { CreateOrganizationForm } from "./forms/create-organization-form";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 import { useSubscriptionStore } from "@/zustand/providers/subscription-store-provider";
+import { SUBSCRIPTION_PLANS } from "@/lib/utils";
 
 export function TeamSwitcher() {
 	const { isMobile } = useSidebar();
@@ -68,6 +69,10 @@ export function TeamSwitcher() {
 		}
 	}, [activeOrganization, organizations]);
 
+	const plan = SUBSCRIPTION_PLANS.find(
+		(plan) => plan.productId === activeOrganization?.subscription?.productId
+	);
+
 	return (
 		<Dialog onOpenChange={setDialogOpen} open={dialogOpen}>
 			<SidebarMenu>
@@ -86,7 +91,7 @@ export function TeamSwitcher() {
 										{activeOrganization?.name}
 									</span>
 									<span className="truncate text-xs">
-										{activeOrganization?.subscription}
+										{plan ? `${plan.name}` : "Free"}
 									</span>
 								</div>
 								<ChevronsUpDown className="ml-auto" />

@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
 				);
 			}
 
-			if (activeOrganization.data?.subscription === "free") {
+			if (activeOrganization.data?.subscription?.status === "active") {
 				const userNotesCount = await prisma.note.count({
 					where: {
 						authorId: currentUser.id,
