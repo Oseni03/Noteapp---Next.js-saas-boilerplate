@@ -17,7 +17,7 @@ import { createFreeSubscription } from "@/server/subscription";
 const polarClient = new Polar({
 	accessToken: process.env.POLAR_ACCESS_TOKEN!,
 	// Use 'sandbox' for development, 'production' for live
-	server: process.env.NODE_ENV === "production" ? "production" : "sandbox",
+	server: "sandbox",
 });
 
 export const auth = betterAuth({
