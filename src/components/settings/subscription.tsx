@@ -6,10 +6,12 @@ import { Building2, Crown, Zap } from "lucide-react";
 import { SUBSCRIPTION_PLANS } from "@/lib/utils";
 import { toast } from "sonner";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { authClient } from "@/lib/auth-client";
 
 const SubscriptionCard = () => {
-	const { activeOrganization, isAdmin, subscription, subscribe } =
-		useOrganizationStore((state) => state);
+	const { activeOrganization, isAdmin, subscription } = useOrganizationStore(
+		(state) => state
+	);
 
 	const productIds = SUBSCRIPTION_PLANS.map((plan) => plan.productId);
 
@@ -27,9 +29,21 @@ const SubscriptionCard = () => {
 				return;
 			}
 
-			await subscribe(activeOrganization.id, productIds);
-			toast.dismiss();
-			toast.success("Redirecting to checkout...");
+			const { data, error } = await authClient.checkout({
+				products: productIds,
+				referenceId: activeOrganization.id,
+				allowDiscountCodes: true,
+			});
+
+			if (error) {
+				throw new Error(error.message);
+			}
+
+			if (data?.url) {
+				toast.dismiss();
+				toast.success("Redirecting to checkout...");
+				window.location.href = data.url;
+			}
 		} catch (error) {
 			console.error("Error creating checkout session:", error);
 			toast.dismiss();
