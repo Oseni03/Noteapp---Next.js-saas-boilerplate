@@ -31,7 +31,7 @@ const SubscriptionCard = () => {
 
 			const { data, error } = await authClient.checkout({
 				products: productIds,
-				// referenceId: activeOrganization.id,
+				referenceId: activeOrganization.id,
 				allowDiscountCodes: true,
 			});
 
