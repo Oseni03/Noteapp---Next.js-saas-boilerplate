@@ -30,7 +30,7 @@ const SubscriptionCard = () => {
 			}
 
 			const { data, error } = await authClient.checkout({
-				products: productIds,
+				slug: SUBSCRIPTION_PLANS[-1].id,
 				referenceId: activeOrganization.id,
 				allowDiscountCodes: true,
 			});
