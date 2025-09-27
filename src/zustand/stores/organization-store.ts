@@ -131,10 +131,7 @@ export const createOrganizationStore = (
 				setOrganizations: async (organizations) => {
 					set((state) => ({
 						...state,
-						organizations: [
-							...state.organizations,
-							...organizations,
-						],
+						organizations: organizations,
 					}));
 				},
 				addOrganization: async (organization) => {
