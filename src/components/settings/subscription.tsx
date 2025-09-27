@@ -38,23 +38,24 @@ const SubscriptionCard = () => {
 				return;
 			}
 
-			toast.loading("Creating checkout session...");
+			toast.loading("Redirecting to your portal...");
 
-			const { data, error } = await authClient.checkout({
-				products: productIds,
-				referenceId: activeOrganization.id,
-				allowDiscountCodes: true,
-			});
+			// const { data, error } = await authClient.checkout({
+			// 	products: productIds,
+			// 	referenceId: activeOrganization.id,
+			// 	allowDiscountCodes: true,
+			// });
+			await authClient.customer.portal();
 
-			if (error) {
-				throw new Error(error.message);
-			}
+			// if (error) {
+			// 	throw new Error(error.message);
+			// }
 
-			if (data?.url) {
-				toast.dismiss();
-				toast.success("Redirecting to checkout...");
-				window.location.href = data.url;
-			}
+			// if (data?.url) {
+			// 	toast.dismiss();
+			// 	toast.success("Redirecting to checkout...");
+			// 	window.location.href = data.url;
+			// }
 		} catch (error) {
 			console.error("Error creating checkout session:", error);
 			toast.dismiss();

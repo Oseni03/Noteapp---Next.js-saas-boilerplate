@@ -151,6 +151,7 @@ model Subscription {
   endsAt                      DateTime?
   endedAt                     DateTime?
   customerId                  String
+  subscriptionId              String?
   productId                   String
   discountId                  String?
   checkoutId                  String

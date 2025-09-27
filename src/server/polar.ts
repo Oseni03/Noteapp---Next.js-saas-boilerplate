@@ -9,8 +9,11 @@ function safeParseDate(dateString: string | null | undefined): Date | null {
 	return isNaN(date.getTime()) ? null : date;
 }
 
-export async function handleSubscriptionCreated(payload: any) {
-	console.log("🎯 Processing subscription.created:", payload.data.id);
+export async function handleSubscriptionUpdated(payload: any) {
+	console.log(
+		"🎯 Processing subscription created/updated: ",
+		payload.data.id
+	);
 
 	// Extract organization ID from customer data
 	const organizationId = payload.data.metadata?.referenceId;
@@ -27,12 +30,26 @@ export async function handleSubscriptionCreated(payload: any) {
 	}
 
 	try {
+		// Find the existing local subscription for this organization
+		const existingSubscription = await prisma.subscription.findUnique({
+			where: { organizationId },
+		});
+
+		if (!existingSubscription) {
+			console.error(
+				"❌ No local subscription found for organization:",
+				organizationId
+			);
+			return;
+		}
+
 		console.log(`📦 Creating subscription with plan: ${plan.id}`);
-		await prisma.subscription.create({
+		await prisma.subscription.update({
+			where: { organizationId },
 			data: {
-				id: payload.data.id,
-				createdAt: new Date(payload.data.createdAt),
-				modifiedAt: safeParseDate(payload.data.modifiedAt),
+				subscriptionId: payload.data.id,
+				modifiedAt:
+					safeParseDate(payload.data.modifiedAt) || new Date(),
 				amount: payload.data.amount,
 				currency: payload.data.currency,
 				recurringInterval: payload.data.recurringInterval,
@@ -64,7 +81,6 @@ export async function handleSubscriptionCreated(payload: any) {
 				// Set plan features based on product
 				maxUsers: plan.maxUsers,
 				maxNotes: plan.maxNotes,
-				organizationId: organizationId,
 			},
 		});
 
@@ -75,78 +91,20 @@ export async function handleSubscriptionCreated(payload: any) {
 	}
 }
 
-export async function handleSubscriptionUpdated(payload: any) {
-	console.log("🎯 Processing subscription.updated:", payload.data.id);
-
-	// Get the plan details
-	const plan = getPlanByProductId(payload.data.product?.id || "");
-	if (!plan) {
-		console.error("❌ Invalid plan iD: ", payload.data.product?.name);
-		return;
-	}
-
-	try {
-		// Check if subscription exists
-		const existingSubscription = await prisma.subscription.findUnique({
-			where: { id: payload.data.id },
-		});
-
-		if (!existingSubscription) {
-			console.log("⚠️ Subscription not found, creating new one");
-			return await handleSubscriptionCreated(payload);
-		}
-
-		await prisma.subscription.update({
-			where: { id: payload.data.id },
-			data: {
-				modifiedAt:
-					safeParseDate(payload.data.modifiedAt) || new Date(),
-				amount: payload.data.amount,
-				currency: payload.data.currency,
-				recurringInterval: payload.data.recurringInterval,
-				status: payload.data.status,
-				currentPeriodStart:
-					safeParseDate(payload.data.currentPeriodStart) ||
-					new Date(),
-				currentPeriodEnd:
-					safeParseDate(payload.data.currentPeriodEnd) || new Date(),
-				cancelAtPeriodEnd: payload.data.cancelAtPeriodEnd || false,
-				canceledAt: safeParseDate(payload.data.canceledAt),
-				startedAt: safeParseDate(payload.data.startedAt) || new Date(),
-				endsAt: safeParseDate(payload.data.endsAt),
-				endedAt: safeParseDate(payload.data.endedAt),
-				customerId: payload.data.customerId,
-				productId: payload.data.productId,
-				discountId: payload.data.discountId || null,
-				checkoutId: payload.data.checkoutId || "",
-				customerCancellationReason:
-					payload.data.customerCancellationReason || null,
-				customerCancellationComment:
-					payload.data.customerCancellationComment || null,
-				metadata: payload.data.metadata
-					? JSON.stringify(payload.data.metadata)
-					: null,
-				customFieldData: payload.data.customFieldData
-					? JSON.stringify(payload.data.customFieldData)
-					: null,
-				// Note: Don't update organizationId on updates to prevent accidental changes
-			},
-		});
-
-		console.log("✅ Updated subscription:", payload.data.id);
-	} catch (error) {
-		console.error("💥 Error updating subscription:", error);
-		// Don't throw - let webhook succeed to avoid retries
-	}
-}
-
 export async function handleSubscriptionCanceled(payload: any) {
 	console.log("🎯 Processing subscription.canceled:", payload.data.id);
 
 	try {
+		// Extract organization ID from customer data
+		const organizationId = payload.data.metadata?.referenceId;
+		if (!organizationId) {
+			console.error("❌ No referenceId found in metadata");
+			return;
+		}
+
 		// Check if subscription exists
 		const existingSubscription = await prisma.subscription.findUnique({
-			where: { id: payload.data.id },
+			where: { organizationId },
 		});
 
 		if (!existingSubscription) {
@@ -155,8 +113,9 @@ export async function handleSubscriptionCanceled(payload: any) {
 		}
 
 		await prisma.subscription.update({
-			where: { id: payload.data.id },
+			where: { organizationId },
 			data: {
+				subscriptionId: payload.data.id,
 				modifiedAt: new Date(),
 				status: "canceled",
 				cancelAtPeriodEnd: true,
@@ -185,9 +144,14 @@ export async function handleSubscriptionRevoked(payload: any) {
 	console.log("🎯 Processing subscription.revoked:", payload.data.id);
 
 	try {
+		const organizationId = payload.data.metadata?.referenceId;
+		if (!organizationId) {
+			console.error("❌ No referenceId found in metadata");
+			return;
+		}
 		// Check if subscription exists
 		const existingSubscription = await prisma.subscription.findUnique({
-			where: { id: payload.data.id },
+			where: { organizationId },
 		});
 
 		if (!existingSubscription) {
@@ -196,7 +160,7 @@ export async function handleSubscriptionRevoked(payload: any) {
 		}
 
 		await prisma.subscription.update({
-			where: { id: payload.data.id },
+			where: { organizationId },
 			data: {
 				modifiedAt: new Date(),
 				status: "revoked",
@@ -220,9 +184,14 @@ export async function handleSubscriptionUncanceled(payload: any) {
 	console.log("🎯 Processing subscription.uncanceled:", payload.data.id);
 
 	try {
+		const organizationId = payload.data.metadata?.referenceId;
+		if (!organizationId) {
+			console.error("❌ No referenceId found in metadata");
+			return;
+		}
 		// Check if subscription exists
 		const existingSubscription = await prisma.subscription.findUnique({
-			where: { id: payload.data.id },
+			where: { organizationId },
 		});
 
 		if (!existingSubscription) {
@@ -231,7 +200,7 @@ export async function handleSubscriptionUncanceled(payload: any) {
 		}
 
 		await prisma.subscription.update({
-			where: { id: payload.data.id },
+			where: { organizationId },
 			data: {
 				modifiedAt: new Date(),
 				status: payload.data.status,
@@ -259,26 +228,32 @@ export async function handleSubscriptionUncanceled(payload: any) {
 export async function handleSubscriptionActive(payload: any) {
 	console.log("🎯 Processing subscription.active:", payload.data.id);
 
+	const organizationId = payload.data.metadata?.referenceId;
+	if (!organizationId) {
+		console.error("❌ No referenceId found in metadata");
+		return;
+	}
+
 	// Get the plan details for the activated subscription
-	const plan = getPlan(payload.data.product?.name?.toLowerCase() || "");
+	const plan = getPlanByProductId(payload.data.product?.id || "");
 	if (!plan) {
-		console.error("❌ Invalid plan name:", payload.data.product?.name);
+		console.error("❌ Invalid plan iD: ", payload.data.product?.name);
 		return;
 	}
 
 	try {
 		// Check if subscription exists
 		const existingSubscription = await prisma.subscription.findUnique({
-			where: { id: payload.data.id },
+			where: { organizationId },
 		});
 
 		if (!existingSubscription) {
 			console.log("⚠️ Subscription not found, creating new one");
-			return await handleSubscriptionCreated(payload);
+			return;
 		}
 
 		await prisma.subscription.update({
-			where: { id: payload.data.id },
+			where: { organizationId },
 			data: {
 				modifiedAt: new Date(),
 				status: "active",
@@ -288,6 +263,8 @@ export async function handleSubscriptionActive(payload: any) {
 				currentPeriodEnd:
 					safeParseDate(payload.data.currentPeriodEnd) || new Date(),
 				startedAt: safeParseDate(payload.data.startedAt) || new Date(),
+				maxNotes: plan.maxNotes,
+				maxUsers: plan.maxUsers,
 			},
 		});
 
@@ -304,7 +281,7 @@ export async function handleSubscriptionWebhook(payload: any) {
 
 	switch (type) {
 		case "subscription.created":
-			return handleSubscriptionCreated(payload);
+			return handleSubscriptionUpdated(payload);
 
 		case "subscription.updated":
 			return handleSubscriptionUpdated(payload);

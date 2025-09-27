@@ -66,8 +66,6 @@ CREATE TABLE "public"."organization" (
     "createdAt" TIMESTAMP(3) NOT NULL,
     "metadata" TEXT,
     "polarCustomerId" TEXT,
-    "maxUsers" INTEGER,
-    "maxNotes" INTEGER,
 
     CONSTRAINT "organization_pkey" PRIMARY KEY ("id")
 );
@@ -78,7 +76,7 @@ CREATE TABLE "public"."member" (
     "organizationId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "role" TEXT NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "member_pkey" PRIMARY KEY ("id")
 );
@@ -105,27 +103,42 @@ CREATE TABLE "public"."Note" (
     "tenantId" TEXT NOT NULL,
     "tags" TEXT[],
     "isPublic" BOOLEAN NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Note_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."subscriptions" (
+CREATE TABLE "public"."subscription" (
     "id" TEXT NOT NULL,
-    "organizationId" TEXT NOT NULL,
-    "polarSubscriptionId" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
-    "planName" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "modifiedAt" TIMESTAMP(3),
     "amount" INTEGER NOT NULL,
-    "currency" TEXT NOT NULL DEFAULT 'USD',
+    "currency" TEXT NOT NULL,
+    "recurringInterval" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "currentPeriodStart" TIMESTAMP(3) NOT NULL,
     "currentPeriodEnd" TIMESTAMP(3) NOT NULL,
     "cancelAtPeriodEnd" BOOLEAN NOT NULL DEFAULT false,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "canceledAt" TIMESTAMP(3),
+    "startedAt" TIMESTAMP(3) NOT NULL,
+    "endsAt" TIMESTAMP(3),
+    "endedAt" TIMESTAMP(3),
+    "customerId" TEXT NOT NULL,
+    "subscriptionId" TEXT,
+    "productId" TEXT NOT NULL,
+    "discountId" TEXT,
+    "checkoutId" TEXT NOT NULL,
+    "customerCancellationReason" TEXT,
+    "customerCancellationComment" TEXT,
+    "metadata" TEXT,
+    "customFieldData" TEXT,
+    "maxUsers" INTEGER NOT NULL DEFAULT 3,
+    "maxNotes" INTEGER NOT NULL DEFAULT 50,
+    "organizationId" TEXT NOT NULL,
 
-    CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "subscription_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -138,10 +151,7 @@ CREATE UNIQUE INDEX "session_token_key" ON "public"."session"("token");
 CREATE UNIQUE INDEX "organization_slug_key" ON "public"."organization"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "subscriptions_organizationId_key" ON "public"."subscriptions"("organizationId");
-
--- CreateIndex
-CREATE UNIQUE INDEX "subscriptions_polarSubscriptionId_key" ON "public"."subscriptions"("polarSubscriptionId");
+CREATE UNIQUE INDEX "subscription_organizationId_key" ON "public"."subscription"("organizationId");
 
 -- AddForeignKey
 ALTER TABLE "public"."session" ADD CONSTRAINT "session_userId_fkey" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -168,4 +178,4 @@ ALTER TABLE "public"."Note" ADD CONSTRAINT "Note_authorId_fkey" FOREIGN KEY ("au
 ALTER TABLE "public"."Note" ADD CONSTRAINT "Note_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "public"."organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."subscriptions" ADD CONSTRAINT "subscriptions_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "public"."subscription" ADD CONSTRAINT "subscription_organizationId_fkey" FOREIGN KEY ("organizationId") REFERENCES "public"."organization"("id") ON DELETE CASCADE ON UPDATE CASCADE;
