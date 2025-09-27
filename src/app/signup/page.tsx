@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { GalleryVerticalEnd } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { signUp } from "@/server/users";
 import { authClient } from "@/lib/auth-client";
 import { SignupForm } from "@/components/forms/signup-form";
+import { AuthWrapper } from "@/components/auth-wrapper";
 
 const Signup = () => {
 	const { user } = authClient.useSession().data || {};
@@ -40,30 +40,9 @@ const Signup = () => {
 	};
 
 	return (
-		<div className="grid min-h-svh lg:grid-cols-2">
-			<div className="flex flex-col gap-4 p-6 md:p-10">
-				<div className="flex justify-center gap-2 md:justify-start">
-					<a href="#" className="flex items-center gap-2 font-medium">
-						<div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-							<GalleryVerticalEnd className="size-4" />
-						</div>
-						Noteapp
-					</a>
-				</div>
-				<div className="flex flex-1 items-center justify-center">
-					<div className="w-full max-w-xs">
-						<SignupForm action={handleSubmit} />
-					</div>
-				</div>
-			</div>
-			<div className="bg-muted relative hidden lg:block">
-				<img
-					src="/placeholder.svg"
-					alt="Image"
-					className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-				/>
-			</div>
-		</div>
+		<AuthWrapper>
+			<SignupForm action={handleSubmit} />
+		</AuthWrapper>
 	);
 };
 
