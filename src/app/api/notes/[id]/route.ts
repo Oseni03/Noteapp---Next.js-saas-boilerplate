@@ -64,7 +64,7 @@ export async function PUT(
 	return withAuth(request, async (request, currentUser) => {
 		try {
 			const { id: noteId } = await params;
-			const { title, content, authorId, organizationId, tags, isPublic } =
+			const { title, content, authorId, tenantId, tags, isPublic } =
 				await request.json();
 
 			if (!title || !content) {
@@ -90,8 +90,8 @@ export async function PUT(
 
 			if (
 				!authorId ||
-				!organizationId ||
-				currentUser.organizationId !== organizationId
+				!tenantId ||
+				currentUser.organizationId !== tenantId
 			) {
 				return NextResponse.json(
 					{ error: "Not authorized" },
