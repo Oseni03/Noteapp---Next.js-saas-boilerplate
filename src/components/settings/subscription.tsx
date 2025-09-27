@@ -13,21 +13,32 @@ const SubscriptionCard = () => {
 		(state) => state
 	);
 
-	const productIds = SUBSCRIPTION_PLANS.map((plan) => plan.productId);
+	const productIds = SUBSCRIPTION_PLANS.map((plan) => plan.productId).filter(
+		Boolean
+	);
 
 	const handleSubscriptionUpgrade = async () => {
 		try {
-			toast.loading("Creating checkout session...");
-
-			if (!activeOrganization) return;
+			if (!activeOrganization) {
+				toast.error("No active organization selected");
+				return;
+			}
 
 			if (!isAdmin) {
-				toast.dismiss();
 				toast.error(
 					"You do not have permission to upgrade subscription"
 				);
 				return;
 			}
+
+			if (productIds.length === 0) {
+				toast.error(
+					"Product IDs are not configured. Please contact support."
+				);
+				return;
+			}
+
+			toast.loading("Creating checkout session...");
 
 			const { data, error } = await authClient.checkout({
 				products: productIds,
