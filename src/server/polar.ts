@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { prisma } from "@/lib/prisma";
-import { getPlan } from "@/lib/utils";
+import { getPlan, getPlanByProductId } from "@/lib/utils";
 
 // Helper function for safe date parsing
 function safeParseDate(dateString: string | null | undefined): Date | null {
@@ -13,50 +13,57 @@ export async function handleSubscriptionCreated(payload: any) {
 	console.log("🎯 Processing subscription.created:", payload.data.id);
 
 	// Extract organization ID from customer data
-	const organizationId = payload.data.customer?.external_id;
+	const organizationId = payload.data.metadata?.referenceId;
 	if (!organizationId) {
-		console.error("❌ No organizationId found in customer.external_id");
+		console.error("❌ No referenceId found in metadata");
+		return;
+	}
+
+	// Get the plan details
+	const plan = getPlanByProductId(payload.data.product?.id || "");
+	if (!plan) {
+		console.error("❌ Invalid plan iD: ", payload.data.product?.name);
 		return;
 	}
 
 	try {
+		console.log(`📦 Creating subscription with plan: ${plan.id}`);
 		await prisma.subscription.create({
 			data: {
 				id: payload.data.id,
-				createdAt: new Date(payload.data.created_at),
-				modifiedAt: safeParseDate(payload.data.modified_at),
+				createdAt: new Date(payload.data.createdAt),
+				modifiedAt: safeParseDate(payload.data.modifiedAt),
 				amount: payload.data.amount,
 				currency: payload.data.currency,
-				recurringInterval: payload.data.recurring_interval,
+				recurringInterval: payload.data.recurringInterval,
 				status: payload.data.status,
 				currentPeriodStart:
-					safeParseDate(payload.data.current_period_start) ||
+					safeParseDate(payload.data.currentPeriodStart) ||
 					new Date(),
 				currentPeriodEnd:
-					safeParseDate(payload.data.current_period_end) ||
-					new Date(),
-				cancelAtPeriodEnd: payload.data.cancel_at_period_end || false,
-				canceledAt: safeParseDate(payload.data.canceled_at),
-				startedAt: safeParseDate(payload.data.started_at) || new Date(),
-				endsAt: safeParseDate(payload.data.ends_at),
-				endedAt: safeParseDate(payload.data.ended_at),
-				customerId: payload.data.customer_id,
-				productId: payload.data.product_id,
-				discountId: payload.data.discount_id || null,
-				checkoutId: payload.data.checkout_id || "",
+					safeParseDate(payload.data.currentPeriodEnd) || new Date(),
+				cancelAtPeriodEnd: payload.data.cancelAtPeriodEnd || false,
+				canceledAt: safeParseDate(payload.data.canceledAt),
+				startedAt: safeParseDate(payload.data.startedAt) || new Date(),
+				endsAt: safeParseDate(payload.data.endsAt),
+				endedAt: safeParseDate(payload.data.endedAt),
+				customerId: payload.data.customerId,
+				productId: payload.data.productId,
+				discountId: payload.data.discountId || null,
+				checkoutId: payload.data.checkoutId || "",
 				customerCancellationReason:
-					payload.data.customer_cancellation_reason || null,
+					payload.data.customerCancellationReason || null,
 				customerCancellationComment:
-					payload.data.customer_cancellation_comment || null,
+					payload.data.customerCancellationComment || null,
 				metadata: payload.data.metadata
 					? JSON.stringify(payload.data.metadata)
 					: null,
-				customFieldData: payload.data.custom_field_data
-					? JSON.stringify(payload.data.custom_field_data)
+				customFieldData: payload.data.customFieldData
+					? JSON.stringify(payload.data.customFieldData)
 					: null,
 				// Set plan features based on product
-				maxUsers: getPlan(payload.data.product_id)?.maxUsers ?? 3,
-				maxNotes: getPlan(payload.data.product_id)?.maxNotes ?? 50,
+				maxUsers: plan.maxUsers,
+				maxNotes: plan.maxNotes,
 				organizationId: organizationId,
 			},
 		});
@@ -71,40 +78,46 @@ export async function handleSubscriptionCreated(payload: any) {
 export async function handleSubscriptionUpdated(payload: any) {
 	console.log("🎯 Processing subscription.updated:", payload.data.id);
 
+	// Get the plan details
+	const plan = getPlanByProductId(payload.data.product?.id || "");
+	if (!plan) {
+		console.error("❌ Invalid plan iD: ", payload.data.product?.name);
+		return;
+	}
+
 	try {
 		await prisma.subscription.update({
 			where: { id: payload.data.id },
 			data: {
 				modifiedAt:
-					safeParseDate(payload.data.modified_at) || new Date(),
+					safeParseDate(payload.data.modifiedAt) || new Date(),
 				amount: payload.data.amount,
 				currency: payload.data.currency,
-				recurringInterval: payload.data.recurring_interval,
+				recurringInterval: payload.data.recurringInterval,
 				status: payload.data.status,
 				currentPeriodStart:
-					safeParseDate(payload.data.current_period_start) ||
+					safeParseDate(payload.data.currentPeriodStart) ||
 					new Date(),
 				currentPeriodEnd:
-					safeParseDate(payload.data.current_period_end) ||
-					new Date(),
-				cancelAtPeriodEnd: payload.data.cancel_at_period_end || false,
-				canceledAt: safeParseDate(payload.data.canceled_at),
-				startedAt: safeParseDate(payload.data.started_at) || new Date(),
-				endsAt: safeParseDate(payload.data.ends_at),
-				endedAt: safeParseDate(payload.data.ended_at),
-				customerId: payload.data.customer_id,
-				productId: payload.data.product_id,
-				discountId: payload.data.discount_id || null,
-				checkoutId: payload.data.checkout_id || "",
+					safeParseDate(payload.data.currentPeriodEnd) || new Date(),
+				cancelAtPeriodEnd: payload.data.cancelAtPeriodEnd || false,
+				canceledAt: safeParseDate(payload.data.canceledAt),
+				startedAt: safeParseDate(payload.data.startedAt) || new Date(),
+				endsAt: safeParseDate(payload.data.endsAt),
+				endedAt: safeParseDate(payload.data.endedAt),
+				customerId: payload.data.customerId,
+				productId: payload.data.productId,
+				discountId: payload.data.discountId || null,
+				checkoutId: payload.data.checkoutId || "",
 				customerCancellationReason:
-					payload.data.customer_cancellation_reason || null,
+					payload.data.customerCancellationReason || null,
 				customerCancellationComment:
-					payload.data.customer_cancellation_comment || null,
+					payload.data.customerCancellationComment || null,
 				metadata: payload.data.metadata
 					? JSON.stringify(payload.data.metadata)
 					: null,
-				customFieldData: payload.data.custom_field_data
-					? JSON.stringify(payload.data.custom_field_data)
+				customFieldData: payload.data.customFieldData
+					? JSON.stringify(payload.data.customFieldData)
 					: null,
 				// Note: Don't update organizationId on updates to prevent accidental changes
 			},
@@ -128,17 +141,16 @@ export async function handleSubscriptionCanceled(payload: any) {
 				status: "canceled",
 				cancelAtPeriodEnd: true,
 				canceledAt:
-					safeParseDate(payload.data.canceled_at) || new Date(),
+					safeParseDate(payload.data.canceledAt) || new Date(),
 				customerCancellationReason:
-					payload.data.customer_cancellation_reason || null,
+					payload.data.customerCancellationReason || null,
 				customerCancellationComment:
-					payload.data.customer_cancellation_comment || null,
+					payload.data.customerCancellationComment || null,
 				// Update other fields that might have changed
 				currentPeriodEnd:
-					safeParseDate(payload.data.current_period_end) ||
-					new Date(),
-				endsAt: safeParseDate(payload.data.ends_at),
-				endedAt: safeParseDate(payload.data.ended_at),
+					safeParseDate(payload.data.currentPeriodEnd) || new Date(),
+				endsAt: safeParseDate(payload.data.endsAt),
+				endedAt: safeParseDate(payload.data.endedAt),
 			},
 		});
 
@@ -160,10 +172,10 @@ export async function handleSubscriptionRevoked(payload: any) {
 				status: "revoked",
 				cancelAtPeriodEnd: true,
 				canceledAt:
-					safeParseDate(payload.data.canceled_at) || new Date(),
+					safeParseDate(payload.data.canceledAt) || new Date(),
 				endedAt: new Date(),
 				customerCancellationReason:
-					payload.data.customer_cancellation_reason || "revoked",
+					payload.data.customerCancellationReason || "revoked",
 			},
 		});
 
@@ -190,11 +202,10 @@ export async function handleSubscriptionUncanceled(payload: any) {
 				customerCancellationComment: null,
 				// Update period information
 				currentPeriodStart:
-					safeParseDate(payload.data.current_period_start) ||
+					safeParseDate(payload.data.currentPeriodStart) ||
 					new Date(),
 				currentPeriodEnd:
-					safeParseDate(payload.data.current_period_end) ||
-					new Date(),
+					safeParseDate(payload.data.currentPeriodEnd) || new Date(),
 			},
 		});
 
@@ -208,6 +219,13 @@ export async function handleSubscriptionUncanceled(payload: any) {
 export async function handleSubscriptionActive(payload: any) {
 	console.log("🎯 Processing subscription.active:", payload.data.id);
 
+	// Get the plan details for the activated subscription
+	const plan = getPlan(payload.data.product?.name?.toLowerCase() || "");
+	if (!plan) {
+		console.error("❌ Invalid plan name:", payload.data.product?.name);
+		return;
+	}
+
 	try {
 		await prisma.subscription.update({
 			where: { id: payload.data.id },
@@ -215,12 +233,11 @@ export async function handleSubscriptionActive(payload: any) {
 				modifiedAt: new Date(),
 				status: "active",
 				currentPeriodStart:
-					safeParseDate(payload.data.current_period_start) ||
+					safeParseDate(payload.data.currentPeriodStart) ||
 					new Date(),
 				currentPeriodEnd:
-					safeParseDate(payload.data.current_period_end) ||
-					new Date(),
-				startedAt: safeParseDate(payload.data.started_at) || new Date(),
+					safeParseDate(payload.data.currentPeriodEnd) || new Date(),
+				startedAt: safeParseDate(payload.data.startedAt) || new Date(),
 			},
 		});
 
