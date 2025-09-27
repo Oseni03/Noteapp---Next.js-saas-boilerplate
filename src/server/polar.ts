@@ -86,6 +86,16 @@ export async function handleSubscriptionUpdated(payload: any) {
 	}
 
 	try {
+		// Check if subscription exists
+		const existingSubscription = await prisma.subscription.findUnique({
+			where: { id: payload.data.id },
+		});
+
+		if (!existingSubscription) {
+			console.log("⚠️ Subscription not found, creating new one");
+			return await handleSubscriptionCreated(payload);
+		}
+
 		await prisma.subscription.update({
 			where: { id: payload.data.id },
 			data: {
@@ -134,6 +144,16 @@ export async function handleSubscriptionCanceled(payload: any) {
 	console.log("🎯 Processing subscription.canceled:", payload.data.id);
 
 	try {
+		// Check if subscription exists
+		const existingSubscription = await prisma.subscription.findUnique({
+			where: { id: payload.data.id },
+		});
+
+		if (!existingSubscription) {
+			console.log("⚠️ Subscription not found for cancellation");
+			return;
+		}
+
 		await prisma.subscription.update({
 			where: { id: payload.data.id },
 			data: {
@@ -165,6 +185,16 @@ export async function handleSubscriptionRevoked(payload: any) {
 	console.log("🎯 Processing subscription.revoked:", payload.data.id);
 
 	try {
+		// Check if subscription exists
+		const existingSubscription = await prisma.subscription.findUnique({
+			where: { id: payload.data.id },
+		});
+
+		if (!existingSubscription) {
+			console.log("⚠️ Subscription not found for revocation");
+			return;
+		}
+
 		await prisma.subscription.update({
 			where: { id: payload.data.id },
 			data: {
@@ -190,6 +220,16 @@ export async function handleSubscriptionUncanceled(payload: any) {
 	console.log("🎯 Processing subscription.uncanceled:", payload.data.id);
 
 	try {
+		// Check if subscription exists
+		const existingSubscription = await prisma.subscription.findUnique({
+			where: { id: payload.data.id },
+		});
+
+		if (!existingSubscription) {
+			console.log("⚠️ Subscription not found for uncancellation");
+			return;
+		}
+
 		await prisma.subscription.update({
 			where: { id: payload.data.id },
 			data: {
@@ -227,6 +267,16 @@ export async function handleSubscriptionActive(payload: any) {
 	}
 
 	try {
+		// Check if subscription exists
+		const existingSubscription = await prisma.subscription.findUnique({
+			where: { id: payload.data.id },
+		});
+
+		if (!existingSubscription) {
+			console.log("⚠️ Subscription not found, creating new one");
+			return await handleSubscriptionCreated(payload);
+		}
+
 		await prisma.subscription.update({
 			where: { id: payload.data.id },
 			data: {
