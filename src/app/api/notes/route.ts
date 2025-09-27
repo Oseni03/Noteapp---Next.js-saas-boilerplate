@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
 // POST /api/notes - Create a new note
 export async function POST(request: NextRequest) {
 	try {
-		const { title, content, authorId, organizationId, tags, isPublic } =
+		const { title, content, authorId, tenantId, tags, isPublic } =
 			await request.json();
 
 		if (!title || !content) {
@@ -78,14 +78,14 @@ export async function POST(request: NextRequest) {
 
 		const userId = await getUserIdFromSession();
 
-		if (!authorId || !organizationId || !userId || userId !== authorId) {
+		if (!authorId || !tenantId || !userId || userId !== authorId) {
 			return NextResponse.json(
 				{ error: "Not authorized" },
 				{ status: 401 }
 			);
 		}
 
-		const activeOrganization = await getOrganizationById(organizationId);
+		const activeOrganization = await getOrganizationById(tenantId);
 
 		if (!activeOrganization) {
 			return NextResponse.json(
@@ -98,7 +98,7 @@ export async function POST(request: NextRequest) {
 			const userNotesCount = await prisma.note.count({
 				where: {
 					authorId,
-					tenantId: organizationId,
+					tenantId,
 				},
 			});
 
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
 				content,
 				tags,
 				authorId,
-				tenantId: organizationId,
+				tenantId,
 				isPublic,
 				createdAt: new Date(),
 				updatedAt: new Date(),
