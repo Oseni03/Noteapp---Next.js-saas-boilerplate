@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
 	User,
 	Building2,
@@ -18,6 +19,23 @@ import { MembersCard } from "@/components/settings/members";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Page = () => {
+	const searchParams = useSearchParams();
+	const router = useRouter();
+	const defaultTab = searchParams.get("tab") || "profile";
+	const [tab, setTab] = useState(defaultTab);
+
+	useEffect(() => {
+		const urlTab = searchParams.get("tab");
+		if (urlTab && urlTab !== tab) {
+			setTab(urlTab);
+		}
+	}, [searchParams, tab]);
+
+	const handleTabChange = (value: string) => {
+		setTab(value);
+		router.push(`/dashboard/settings?tab=${value}`);
+	};
+
 	return (
 		<div className="p-4 sm:p-6 space-y-6 mx-auto">
 			{/* Header */}
@@ -30,7 +48,11 @@ const Page = () => {
 				</p>
 			</div>
 
-			<Tabs defaultValue="profile" className="w-full">
+			<Tabs
+				value={tab}
+				onValueChange={handleTabChange}
+				className="w-full"
+			>
 				<TabsList className="flex flex-nowrap overflow-x-auto pb-2 sm:pb-0 mb-6 -mx-4 sm:mx-0 px-4 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
 					<TabsTrigger
 						value="profile"

@@ -29,7 +29,7 @@ import {
 } from "./ui/dialog";
 import { CreateOrganizationForm } from "./forms/create-organization-form";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
-import { getPlanByProductId, SUBSCRIPTION_PLANS } from "@/lib/utils";
+import { getPlanByProductId } from "@/lib/utils";
 
 export function TeamSwitcher() {
 	const { isMobile } = useSidebar();

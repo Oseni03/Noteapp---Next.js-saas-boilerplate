@@ -116,11 +116,21 @@ export function NavUser() {
 						{isAdmin && (
 							<>
 								<DropdownMenuGroup>
-									<DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() =>
+											router.push("/dashboard/settings")
+										}
+									>
 										<UserCircle />
 										Settings
 									</DropdownMenuItem>
-									<DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() =>
+											router.push(
+												"/dashboard/settings?tab=subscription"
+											)
+										}
+									>
 										<CreditCard />
 										Billing
 									</DropdownMenuItem>
