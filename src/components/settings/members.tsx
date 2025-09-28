@@ -90,9 +90,8 @@ export const MembersCard = () => {
 
 			if (!activeOrganization) return;
 
-			const { data, success, error } = await cancelInvitation(
-				invitationId
-			);
+			const { data, success, error } =
+				await cancelInvitation(invitationId);
 
 			if (data) {
 				removeInvite(data.id);
@@ -119,7 +118,7 @@ export const MembersCard = () => {
 			? "Unlimited slots available"
 			: `${
 					subscription?.maxUsers || 50 - (members?.length || 0)
-			  } slots available`;
+				} slots available`;
 
 	return (
 		<div className="p-4 sm:p-6 space-y-6">

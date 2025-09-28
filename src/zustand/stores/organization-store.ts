@@ -88,20 +88,12 @@ export const createOrganizationStore = (
 
 				// Async function that handles the data fetching properly
 				setActiveOrganization: async (organizationId) => {
-					const currentOrg = get().activeOrganization;
-
-					// Don't refetch if it's the same organization
-					if (currentOrg?.id === organizationId) {
-						return;
-					}
-
 					// Set loading state
 					get().setLoading(true);
 
 					try {
-						const { data, success } = await getOrganizationById(
-							organizationId
-						);
+						const { data, success } =
+							await getOrganizationById(organizationId);
 
 						const session = await getCurrentUser();
 
