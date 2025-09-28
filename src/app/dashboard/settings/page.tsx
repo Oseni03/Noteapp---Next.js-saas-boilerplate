@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
 	User,
@@ -18,7 +18,8 @@ import { UserProfileCard } from "@/components/settings/user-profile";
 import { MembersCard } from "@/components/settings/members";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const Page = () => {
+// Extract the component that uses useSearchParams into a separate component
+const SettingsContent = () => {
 	const searchParams = useSearchParams();
 	const router = useRouter();
 	const defaultTab = searchParams.get("tab") || "profile";
@@ -143,6 +144,29 @@ const Page = () => {
 				</div>
 			</Tabs>
 		</div>
+	);
+};
+
+// Loading fallback component
+const SettingsLoading = () => (
+	<div className="p-4 sm:p-6 space-y-6 mx-auto">
+		<div>
+			<h1 className="text-xl sm:text-2xl font-bold text-foreground">
+				Settings
+			</h1>
+			<p className="text-sm sm:text-base text-muted-foreground">
+				Loading...
+			</p>
+		</div>
+	</div>
+);
+
+// Main page component with Suspense boundary
+const Page = () => {
+	return (
+		<Suspense fallback={<SettingsLoading />}>
+			<SettingsContent />
+		</Suspense>
 	);
 };
 
