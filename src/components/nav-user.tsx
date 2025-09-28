@@ -107,37 +107,37 @@ export function NavUser() {
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
-								<Sparkles />
-								Upgrade to Pro
+							<DropdownMenuItem
+								onClick={() =>
+									router.push("/dashboard/account")
+								}
+							>
+								<UserCircle />
+								Account Settings
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						{isAdmin && (
-							<>
-								<DropdownMenuGroup>
-									<DropdownMenuItem
-										onClick={() =>
-											router.push("/dashboard/settings")
-										}
-									>
-										<UserCircle />
-										Settings
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										onClick={() =>
-											router.push(
-												"/dashboard/settings?tab=subscription"
-											)
-										}
-									>
-										<CreditCard />
-										Billing
-									</DropdownMenuItem>
-								</DropdownMenuGroup>
-								<DropdownMenuSeparator />
-							</>
-						)}
+						<DropdownMenuGroup>
+							<DropdownMenuItem
+								onClick={() =>
+									router.push("/dashboard/settings")
+								}
+							>
+								<Sparkles />
+								Organization Settings
+							</DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() =>
+									router.push(
+										"/dashboard/settings?tab=subscription"
+									)
+								}
+							>
+								<CreditCard />
+								Billing
+							</DropdownMenuItem>
+						</DropdownMenuGroup>
+						<DropdownMenuSeparator />
 						<DropdownMenuItem onClick={handleSignOut}>
 							<LogOut />
 							Log out

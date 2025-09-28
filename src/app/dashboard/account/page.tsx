@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
 
-export const UserProfileCard = () => {
+export default function Page() {
 	const { user } = authClient.useSession().data || {};
 	const [isEditing, setIsEditing] = useState(false);
 	const [formData, setFormData] = useState({
@@ -136,4 +136,4 @@ export const UserProfileCard = () => {
 			</CardContent>
 		</Card>
 	);
-};
+}

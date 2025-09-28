@@ -3,7 +3,6 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-	User,
 	Building2,
 	Users2,
 	LineChart,
@@ -14,7 +13,7 @@ import OrganizationCard from "@/components/settings/organizations";
 import SubscriptionCard from "@/components/settings/subscription";
 import { UsageCard } from "@/components/settings/usage";
 import { QuickActions } from "@/components/settings/quick-actions";
-import { UserProfileCard } from "@/components/settings/user-profile";
+
 import { MembersCard } from "@/components/settings/members";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -22,7 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 const SettingsContent = () => {
 	const searchParams = useSearchParams();
 	const router = useRouter();
-	const defaultTab = searchParams.get("tab") || "profile";
+	const defaultTab = searchParams.get("tab") || "organization";
 	const [tab, setTab] = useState(defaultTab);
 
 	useEffect(() => {
@@ -45,7 +44,8 @@ const SettingsContent = () => {
 					Settings
 				</h1>
 				<p className="text-sm sm:text-base text-muted-foreground">
-					Manage your profile, organization settings, and team members
+					Manage your organization settings, team members, and
+					subscription
 				</p>
 			</div>
 
@@ -55,13 +55,6 @@ const SettingsContent = () => {
 				className="w-full"
 			>
 				<TabsList className="flex flex-nowrap overflow-x-auto pb-2 sm:pb-0 mb-6 -mx-4 sm:mx-0 px-4 sm:px-0 sm:grid sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-4">
-					<TabsTrigger
-						value="profile"
-						className="flex items-center gap-2 min-w-[120px] sm:min-w-0 whitespace-nowrap"
-					>
-						<User className="h-4 w-4 flex-shrink-0" />
-						<span>Profile</span>
-					</TabsTrigger>
 					<TabsTrigger
 						value="organization"
 						className="flex items-center gap-2 min-w-[120px] sm:min-w-0 whitespace-nowrap"
@@ -100,13 +93,6 @@ const SettingsContent = () => {
 				</TabsList>
 
 				<div className="-mx-4 sm:mx-0">
-					<TabsContent
-						value="profile"
-						className="space-y-4 sm:space-y-6 px-4 sm:px-0"
-					>
-						<UserProfileCard />
-					</TabsContent>
-
 					<TabsContent
 						value="organization"
 						className="space-y-4 sm:space-y-6 px-4 sm:px-0"

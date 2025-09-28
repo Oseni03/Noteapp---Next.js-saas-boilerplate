@@ -1,6 +1,6 @@
 "use client";
 
-import { type LucideIcon } from "lucide-react";
+import { ArrowLeft, type LucideIcon } from "lucide-react";
 import {
 	SidebarGroup,
 	SidebarGroupLabel,
@@ -9,29 +9,41 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { usePathname, useRouter } from "next/navigation";
-import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { buttonVariants } from "./ui/button";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 export function NavMain({
 	items,
+	isAccountPage = false,
 }: {
 	items: {
 		id: string;
 		label: string;
 		url: string;
 		icon?: LucideIcon;
-		adminOnly: boolean;
 	}[];
+	isAccountPage: boolean;
 }) {
-	const isAdmin = useOrganizationStore((state) => state.isAdmin);
 	const router = useRouter();
 	const pathname = usePathname();
 	return (
 		<SidebarGroup>
 			<SidebarGroupLabel>Platform</SidebarGroupLabel>
 			<SidebarMenu>
+				{isAccountPage && (
+					<Link
+						href="/dashboard"
+						className={cn(
+							buttonVariants({ variant: "ghost" }),
+							"flex items-center gap-2 justify-start"
+						)}
+					>
+						<ArrowLeft className="h-4 w-4" />
+						Back to Dashboard
+					</Link>
+				)}
 				{items.map((item) => {
-					if (item.adminOnly && !isAdmin) return null;
-
 					const activeTab = item.url == pathname;
 					return (
 						<SidebarMenuItem key={item.id}>
