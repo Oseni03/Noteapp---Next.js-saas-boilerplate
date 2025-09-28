@@ -18,12 +18,12 @@ const OrganizationInvitationEmail = (data: {
 	invitationId: string;
 	role: string;
 }) => {
-	const acceptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings/accept-invite/?invitationId=${encodeURIComponent(
+	const acceptUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/accept-invitation/${
 		data.invitationId
-	)}`;
-	const declineUrl = `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/settings/decline-invite?invitationId=${encodeURIComponent(
+	}`;
+	const declineUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/reject-invitation/${
 		data.invitationId
-	)}`;
+	}`;
 
 	return (
 		<Html>
