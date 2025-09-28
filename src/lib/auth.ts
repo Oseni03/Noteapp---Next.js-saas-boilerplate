@@ -13,6 +13,8 @@ import { Polar } from "@polar-sh/sdk";
 import { handleSubscriptionWebhook } from "@/server/polar";
 import { SUBSCRIPTION_PLANS } from "./utils";
 import { createFreeSubscription } from "@/server/subscription";
+import { sendEmail } from "./resend";
+import OrganizationInvitationEmail from "@/components/emails/organization-invitation-email";
 
 const polarClient = new Polar({
 	accessToken: process.env.POLAR_ACCESS_TOKEN!,
@@ -48,7 +50,6 @@ export const auth = betterAuth({
 		user: {
 			create: {
 				after: async (user) => {
-					console.log("New user created:", user);
 					// Create a personal organization for the user
 					const { data, success } = await createOrganization(
 						user.id,
@@ -84,9 +85,21 @@ export const auth = betterAuth({
 		organization({
 			creatorRole: "admin",
 			async sendInvitationEmail(data) {
-				const inviteLink = `${process.env.NEXT_PUBLIC_APP_URL}/api/accept-invitation/${data.id}`;
+				const { success, error } = await sendEmail({
+					to: data.email,
+					subject: `Invitation to join ${data.organization.name} on Noteapp`,
+					react: OrganizationInvitationEmail({
+						organizationName: data.organization.name,
+						inviterName: data.inviter.user.name || "Someone",
+						inviteeEmail: data.email,
+						invitationId: data.id,
+						role: data.role,
+					}),
+				});
 
-				console.log("Invite link:", inviteLink);
+				if (!success) {
+					console.error("Error sending invitation email:", error);
+				}
 			},
 			roles: {
 				admin,

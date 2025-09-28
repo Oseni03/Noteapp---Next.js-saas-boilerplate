@@ -42,5 +42,8 @@ export const getPlan = (planId: string) => {
 };
 
 export const getPlanByProductId = (productId: string) => {
-	return SUBSCRIPTION_PLANS.find((plan) => plan.productId === productId);
+	return (
+		SUBSCRIPTION_PLANS.find((plan) => plan.productId === productId) ||
+		FREE_PLAN
+	);
 };
