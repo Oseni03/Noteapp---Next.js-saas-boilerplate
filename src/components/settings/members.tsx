@@ -121,7 +121,7 @@ export const MembersCard = () => {
 				} slots available`;
 
 	return (
-		<div className="p-4 sm:p-6 space-y-6">
+		<div className="space-y-6">
 			{/* Header */}
 			<Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
 				<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

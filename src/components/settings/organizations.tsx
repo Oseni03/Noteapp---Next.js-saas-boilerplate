@@ -84,8 +84,8 @@ const OrganizationCard = () => {
 	return (
 		<div className="space-y-6">
 			{/* Organization Card */}
-			<div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-				<div className="p-6 border-b border-gray-200">
+			<div className="rounded-lg shadow-sm">
+				<div className="p-6 border-b">
 					<div className="flex items-center justify-between">
 						<h3 className="text-lg font-semibold flex items-center gap-2">
 							<Building2 className="w-6 h-6" />
