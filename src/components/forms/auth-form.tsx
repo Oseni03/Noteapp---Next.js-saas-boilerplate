@@ -5,7 +5,7 @@ import { GalleryVerticalEnd, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +28,9 @@ const formSchema = z.object({
 
 export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
 	const pathname = usePathname();
+	const searchParams = useSearchParams();
+	const router = useRouter();
+
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [googleLoading, setGoogleLoading] = useState<boolean>(false);
 
@@ -43,9 +46,13 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
 			setGoogleLoading(true);
 			await authClient.signIn.social({
 				provider: "google",
-				callbackURL: "/dashboard",
+				// callbackURL: "/dashboard",
 			});
 			toast.success("Redirecting to Google sign-in...");
+
+			const returnUrl = searchParams.get("callbackUrl") || "/dashboard";
+			// After successful login, redirect to the return URL
+			router.push(returnUrl);
 		} catch (error) {
 			console.error("Error during Google sign-in:", error);
 			toast.error("Failed to sign in with Google");
@@ -60,10 +67,13 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
 
 			await authClient.signIn.magicLink({
 				email: values.email,
-				callbackURL: "/dashboard",
+				// callbackURL: "/dashboard",
 				newUserCallbackURL: "/dashboard",
 			});
 			toast.success("Magic link sent! Check your email.");
+			const returnUrl = searchParams.get("callbackUrl") || "/dashboard";
+			// After successful login, redirect to the return URL
+			router.push(returnUrl);
 		} catch (error) {
 			toast.error("Failed to send magic link");
 			console.error("Magic link sign-in error:", error);

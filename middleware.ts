@@ -1,20 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { getSessionCookie } from "better-auth/cookies";
 
 export async function middleware(request: NextRequest) {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	// Get the session from the request
+	const session = getSessionCookie(request);
 
+	// If no valid session exists, redirect to login with return URL
 	if (!session) {
-		return NextResponse.redirect(new URL("/login", request.url));
+		const loginUrl = new URL("/login", request.url);
+		// Add the current URL as a return URL parameter
+		loginUrl.searchParams.set(
+			"callbackUrl",
+			request.nextUrl.pathname + request.nextUrl.search
+		);
+
+		return NextResponse.redirect(loginUrl);
 	}
 
 	return NextResponse.next();
 }
 
 export const config = {
-	runtime: "nodejs",
-	matcher: ["/dashboard"], // Apply middleware to specific routes
+	matcher: ["/dashboard/:path*"],
 };
