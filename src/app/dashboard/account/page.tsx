@@ -1,44 +1,65 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Save } from "lucide-react";
+import { User } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
+import { ProfileForm } from "@/components/forms/profile-form";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Page() {
-	const { user } = authClient.useSession().data || {};
+	const { data, isPending } = authClient.useSession();
+	const user = data?.user;
 	const [isEditing, setIsEditing] = useState(false);
-	const [formData, setFormData] = useState({
-		name: user?.name || "",
-		email: user?.email || "",
-	});
-	const [isLoading, setIsLoading] = useState(false);
 
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault();
-		setIsLoading(true);
-		try {
-			const data = await authClient.updateUser({
-				name: formData.name,
-			});
+	// Handle loading state
+	if (isPending) {
+		return (
+			<Card>
+				<CardHeader className="space-y-1">
+					<CardTitle className="flex items-center gap-2">
+						<User className="h-4 w-4 sm:h-5 sm:w-5" />
+						User Profile
+					</CardTitle>
+				</CardHeader>
+				<CardContent className="space-y-4">
+					<div className="space-y-2">
+						<Skeleton className="h-4 w-16" />
+						<Skeleton className="h-5 w-48" />
+					</div>
+					<div className="space-y-2">
+						<Skeleton className="h-4 w-16" />
+						<Skeleton className="h-5 w-64" />
+					</div>
+				</CardContent>
+			</Card>
+		);
+	}
 
-			if (!data.error && data.data) {
-				toast.success("Profile updated successfully");
-				setIsEditing(false);
-			} else {
-				throw new Error(
-					data.error?.message || "Failed to update profile"
-				);
-			}
-		} catch (error) {
-			console.log("Error updating profile: ", error);
-			toast.error("Failed to update profile: ");
-		} finally {
-			setIsLoading(false);
-		}
+	// Handle no user state
+	if (!user) {
+		return (
+			<Card>
+				<CardHeader className="space-y-1">
+					<CardTitle className="flex items-center gap-2">
+						<User className="h-4 w-4 sm:h-5 sm:w-5" />
+						User Profile
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<p className="text-muted-foreground">
+						No user data available
+					</p>
+				</CardContent>
+			</Card>
+		);
+	}
+
+	const handleSuccess = async () => {
+		// Refetch session data to update the displayed information
+		await authClient.getSession();
+		setIsEditing(false);
 	};
 
 	return (
@@ -51,62 +72,14 @@ export default function Page() {
 			</CardHeader>
 			<CardContent>
 				{isEditing ? (
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<div className="space-y-2">
-							<label className="text-sm font-medium">Name</label>
-							<Input
-								value={formData.name}
-								onChange={(e) =>
-									setFormData({
-										...formData,
-										name: e.target.value,
-									})
-								}
-								placeholder="Your name"
-								className="w-full sm:max-w-md"
-							/>
-						</div>
-						<div className="space-y-2">
-							<label className="text-sm font-medium">Email</label>
-							<Input
-								value={formData.email}
-								onChange={(e) =>
-									setFormData({
-										...formData,
-										email: e.target.value,
-									})
-								}
-								placeholder="Your email"
-								type="email"
-								disabled
-								className="w-full sm:max-w-md"
-							/>
-						</div>
-						<div className="flex flex-col sm:flex-row gap-2 pt-2">
-							<Button
-								type="submit"
-								disabled={isLoading}
-								className="w-full sm:w-auto"
-							>
-								{isLoading ? (
-									<>Saving...</>
-								) : (
-									<>
-										<Save className="h-4 w-4 mr-2" />
-										Save Changes
-									</>
-								)}
-							</Button>
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => setIsEditing(false)}
-								className="w-full sm:w-auto"
-							>
-								Cancel
-							</Button>
-						</div>
-					</form>
+					<ProfileForm
+						initialData={{
+							name: user.name || "",
+							email: user.email || "",
+						}}
+						onCancel={() => setIsEditing(false)}
+						onSuccess={handleSuccess}
+					/>
 				) : (
 					<div className="space-y-4">
 						<div className="space-y-1">
@@ -114,7 +87,7 @@ export default function Page() {
 								Name
 							</label>
 							<p className="text-base text-muted-foreground">
-								{user?.name}
+								{user.name || "Not provided"}
 							</p>
 						</div>
 						<div className="space-y-1">
@@ -122,7 +95,7 @@ export default function Page() {
 								Email
 							</label>
 							<p className="text-base text-muted-foreground break-all">
-								{user?.email}
+								{user.email || "Not provided"}
 							</p>
 						</div>
 						<Button
