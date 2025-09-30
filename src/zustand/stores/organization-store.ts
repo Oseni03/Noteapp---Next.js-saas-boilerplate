@@ -23,7 +23,7 @@ type OrganizationActions = {
 		organization: Organization,
 		members: Member[],
 		invitations: Invitation[],
-		subscription: Subscription
+		subscription?: Subscription
 	) => void;
 	setOrganizations: (organizations: Organization[]) => Promise<void>;
 	addOrganization: (organization: Organization) => Promise<void>;
@@ -66,7 +66,7 @@ export const createOrganizationStore = (
 					organization,
 					members,
 					invitations,
-					subscription
+					subscription?
 				) => {
 					set((state) => ({
 						...state,

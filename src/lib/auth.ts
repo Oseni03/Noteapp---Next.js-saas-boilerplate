@@ -82,6 +82,7 @@ export const auth = betterAuth({
 						data: {
 							...session,
 							activeOrganizationId: organization?.id,
+							subscription: organization?.subscription,
 						},
 					};
 				},

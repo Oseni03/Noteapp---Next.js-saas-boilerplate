@@ -30,13 +30,16 @@ import {
 import { CreateOrganizationForm } from "./forms/create-organization-form";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
 import { getPlanByProductId } from "@/lib/utils";
+import { Member, Organization } from "@/types";
 
 export function TeamSwitcher() {
 	const { isMobile } = useSidebar();
+	const { data: session } = authClient.useSession();
 	const {
 		organizations,
 		activeOrganization,
-		setActiveOrganization,
+		setAdmin,
+		setOrganizationData,
 		loadSubscription,
 	} = useOrganizationStore((state) => state);
 	const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -53,9 +56,20 @@ export function TeamSwitcher() {
 				return;
 			}
 
-			if (data) {
-				setActiveOrganization(data.id);
+			const isAdmin = !!data?.members?.find(
+				(member) =>
+					member.userId == session?.user?.id && member.role == "admin"
+			);
+
+			if (!error && data) {
+				// Use the sync function to update state
+				setOrganizationData(
+					data as Organization,
+					(data?.members as Member[]) || [],
+					data?.invitations || []
+				);
 				loadSubscription(data.id);
+				setAdmin(isAdmin);
 			}
 
 			toast.success("Organization switched successfully");

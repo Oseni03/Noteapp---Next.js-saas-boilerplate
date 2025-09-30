@@ -11,32 +11,69 @@ import {
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { useOrganizationStore } from "@/zustand/providers/organization-store-provider";
+import { Member, Organization } from "@/types";
 
 export default function Page({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-	const { setActiveOrganization, setOrganizations, loadSubscription } =
-		useOrganizationStore((state) => state);
+	const {
+		setAdmin,
+		setOrganizations,
+		setOrganizationData,
+		setActiveOrganization,
+		updateSubscription,
+	} = useOrganizationStore((state) => state);
 	const { data: session } = authClient.useSession();
 	const { data: organizations } = authClient.useListOrganizations();
 
 	// Move the state update to useEffect to avoid calling it during render
 	useEffect(() => {
-		if (session?.activeOrganizationId) {
-			setActiveOrganization(session.activeOrganizationId);
-			loadSubscription(session.activeOrganizationId);
-		}
-		if (organizations) {
-			setOrganizations(organizations);
-		}
+		const fetchActiveOrg = async () => {
+			const { data, error } =
+				await authClient.organization.getFullOrganization();
+
+			if (error) {
+				console.error("Error fetching active organization:", error);
+				return;
+			}
+			if (data) {
+				const isAdmin = !!data?.members?.find(
+					(member) =>
+						member.userId == session?.user?.id &&
+						member.role == "admin"
+				);
+				setOrganizationData(
+					data as Organization,
+					(data?.members as Member[]) || [],
+					data?.invitations || []
+				);
+				setAdmin(isAdmin);
+
+				if (session?.subscription) {
+					updateSubscription(session.subscription);
+				}
+			} else {
+				setActiveOrganization(
+					session?.activeOrganizationId || organizations![0].id
+				);
+			}
+
+			if (organizations) {
+				setOrganizations(organizations);
+			}
+		};
+
+		fetchActiveOrg();
 	}, [
-		session?.activeOrganizationId,
-		setActiveOrganization,
+		session,
 		organizations,
+		setOrganizationData,
 		setOrganizations,
-		loadSubscription,
+		setAdmin,
+		setActiveOrganization,
+		updateSubscription,
 	]);
 
 	return (
