@@ -1,71 +1,102 @@
 # NoteApp Copilot Instructions
 
-This document provides instructions for AI agents to effectively contribute to the NoteApp codebase.
+This document provides instructions for AI coding agents to effectively contribute to the NoteApp codebase - a multi-tenant SaaS notes application built with Next.js App Router.
 
 ## Architecture Overview
 
-This is a multi-tenant SaaS application built with the Next.js App Router. The backend and frontend are colocated in the same repository and deployed on Vercel.
+- **Framework**: Next.js 14+ (App Router) with co-located frontend/backend
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: JWT-based with `better-auth` library
+- **UI**: React with shadcn/ui components + Tailwind CSS
+- **State**: Zustand for global client-side state
+- **Forms**: React Hook Form + Zod validation
+- **Deployment**: Vercel
 
--   **Framework**: Next.js (App Router)
--   **Database**: PostgreSQL with Prisma ORM.
--   **Authentication**: JWT-based authentication using the `better-auth` library.
--   **UI**: React with shadcn/ui components, Tailwind CSS.
--   **State Management**: Zustand for global client-side state.
--   **Forms**: React Hook Form with Zod for validation.
+## Key Concepts
 
-## Key Concepts & Patterns
+### 1. Multi-Tenant Architecture
 
-### 1. Multi-Tenancy
+- **Design**: Shared database, shared schema with tenant isolation
+- **Critical**: All data access MUST filter by `organizationId`
+- **Plans**: Free (3 user/50 note limit) vs Pro (unlimited) - See `src/lib/utils.ts`
 
-The application uses a **shared schema, shared database** approach. Data isolation is enforced by a `tenantId` (or `organizationId`) column on relevant tables like `Note`.
+Example tenant isolation:
 
--   **Critical**: All database queries that access tenant-specific data **must** be filtered by the `tenantId` of the currently authenticated user's organization.
--   **Example**: When fetching notes, always include a `where` clause like `{ tenantId: activeOrganization.id }`.
--   The Prisma schema is located at `prisma/schema.prisma`.
+```ts
+// In src/server/notes.ts
+const notes = await prisma.note.findMany({
+	where: { organizationId: activeOrganization.id },
+});
+```
 
-### 2. Server-Side Logic
+### 2. Code Organization
 
-Business logic is encapsulated in functions within the `src/server/` directory. These functions are the single source of truth for data manipulation and are called by API routes and Server Actions.
-
--   **Directory**: `src/server/`
--   **Pattern**: API routes in `src/app/api/` should be lean and primarily act as wrappers around functions imported from `src/server/`. For example, `src/app/api/notes/route.ts` will call functions from `src/server/notes.ts`.
--   This keeps business logic separate from the HTTP layer and promotes reusability.
+- **Business Logic**: `src/server/` - Single source of truth
+- **API Routes**: Thin wrappers in `src/app/api/` calling server functions
+- **Components**:
+    - UI primitives: `src/components/ui/`
+    - Forms: `src/components/forms/`
+    - Layout: `src/components/` root
+- **State**: Zustand stores in `src/zustand/`
+- **Types**: Shared interfaces in `src/types/`
 
 ### 3. Authentication & Authorization
 
-Authentication is handled by a JWT-based system. A middleware (`src/lib/middleware.ts`) protects routes and extracts user session information.
+- **Core**: JWT auth with middleware (`src/lib/middleware.ts`)
+- **Roles**: `admin` vs `member` determining permissions
+- **Flow**:
+    1. `src/lib/auth.ts` - Core auth logic
+    2. `useAuthState` hook - Client-side session
+    3. Role checks via `isAdmin` helper
 
--   **Auth Logic**: Core authentication utilities are in `src/lib/auth.ts`.
--   **Session**: Use the `useAuthState` hook from `@/hooks/use-auth.ts` on the client-side to get the current user and their role.
--   **Roles**: The primary roles are `admin` and `user` (or `member`). Role checks are performed to authorize actions (e.g., only admins can invite users).
+### 4. State Management Pattern
 
-### 4. State Management with Zustand
+1. Define mutations in `src/server/` functions
+2. Call via API routes/Server Actions
+3. Update Zustand store on success
+4. Trigger UI updates through store subscriptions
 
-Global state, particularly for the active organization, its members, and invitations, is managed with Zustand.
+Example:
 
--   **Store Provider**: `useOrganizationStore` is the main store, initialized via `OrganizationStoreProvider`.
--   **Location**: `src/zustand/`
--   **Usage**: When performing mutations (e.g., removing a member), ensure you update the Zustand store on the client-side to reflect the change without a full page reload. See `handleRemoveMember` in `src/app/dashboard/users/page.tsx` for an example.
+```tsx
+// In a component
+const removeMember = async (id: string) => {
+	const result = await deleteMember(id);
+	if (result.success) {
+		organizationStore.removeMember(id); // Update local state
+	}
+};
+```
 
-### 5. UI and Components
+### 5. Development Workflow
 
-The UI is built with **shadcn/ui**.
+```bash
+# Initial setup
+npm install
+npx prisma generate
 
--   **Component Library**: Components are located in `src/components/ui/`. These are Radix UI primitives styled with Tailwind CSS.
--   **Forms**: Reusable forms are in `src/components/forms/`. They use `react-hook-form` and `zod` for validation. When creating a new form, follow the pattern in existing forms like `invitation-form.tsx`.
+# Development
+npm run dev         # Start dev server
+npm run lint        # Run ESLint
+npm run build      # Build + generate Prisma
 
-## Developer Workflow
+# Database
+npx prisma generate # After schema changes
+```
 
--   **Run Development Server**: `npm run dev`
--   **Build for Production**: `npm run build`
--   **Prisma**: After making changes to `prisma/schema.prisma`, run `npx prisma generate` to update the Prisma Client. This is automatically included in the `build` command.
--   **Linting**: `npm run lint`
+### 6. Test Accounts
 
-## Key Files and Directories
+All accounts use password: `password`
 
--   `prisma/schema.prisma`: The single source of truth for the database schema.
--   `src/server/`: Contains all core business logic (e.g., `organizations.ts`, `members.ts`, `notes.ts`).
--   `src/app/api/`: Defines the public API endpoints.
--   `src/lib/auth.ts` & `src/lib/middleware.ts`: Core of the authentication and session management system.
--   `src/zustand/providers/organization-store-provider.ts`: The central client-side state store.
--   `src/components/ui/`: Base UI components from shadcn/ui.
+- `admin@acme.test`: Admin role (Acme tenant)
+- `user@acme.test`: Member role (Acme tenant)
+- `admin@globex.test`: Admin role (Globex tenant)
+- `user@globex.test`: Member role (Globex tenant)
+
+## Critical Files
+
+- `prisma/schema.prisma`: Database schema
+- `src/server/*.ts`: Core business logic
+- `src/lib/auth.ts`: Authentication system
+- `src/zustand/providers/organization-store-provider.ts`: Global state
+- `src/app/api/*/route.ts`: API endpoints

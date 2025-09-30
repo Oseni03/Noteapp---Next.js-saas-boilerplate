@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
-import { customSession, organization } from "better-auth/plugins";
+import { customSession, organization, magicLink } from "better-auth/plugins";
 import { admin, member } from "./auth/permissions";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
@@ -15,6 +15,7 @@ import { SUBSCRIPTION_PLANS } from "./utils";
 import { createFreeSubscription } from "@/server/subscription";
 import { sendEmail } from "./resend";
 import OrganizationInvitationEmail from "@/components/emails/organization-invitation-email";
+import MagicLinkEmail from "@/components/emails/magic-link-email";
 
 const polarClient = new Polar({
 	accessToken: process.env.POLAR_ACCESS_TOKEN!,
@@ -32,8 +33,14 @@ export const auth = betterAuth({
 		},
 	},
 	emailAndPassword: {
-		enabled: true,
+		enabled: false,
 		requireEmailVerification: false,
+	},
+	socialProviders: {
+		google: {
+			clientId: process.env.GOOGLE_CLIENT_ID as string,
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+		},
 	},
 	database: prismaAdapter(prisma, {
 		provider: "postgresql", // or "mysql", "postgresql", ...etc
@@ -54,8 +61,8 @@ export const auth = betterAuth({
 					const { data, success } = await createOrganization(
 						user.id,
 						{
-							name: "Personal",
-							slug: `personal-${user.id}`,
+							name: user.email.split("@")[0],
+							slug: user.email.split("@")[0].toLowerCase(),
 						}
 					);
 
@@ -141,6 +148,16 @@ export const auth = betterAuth({
 					},
 				}),
 			],
+		}),
+		magicLink({
+			expiresIn: 60 * 5, // 5 minutes
+			sendMagicLink: async ({ email, url }) => {
+				await sendEmail({
+					to: email,
+					subject: "Your Magic Link is Here!",
+					react: MagicLinkEmail({ email, magicLink: url }),
+				});
+			},
 		}),
 	],
 });
