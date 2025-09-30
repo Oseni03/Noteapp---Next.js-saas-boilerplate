@@ -44,6 +44,7 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
 				provider: "google",
 				callbackURL: "/dashboard",
 			});
+			toast.success("Redirecting to Google sign-in...");
 		} catch (error) {
 			console.error("Error during Google sign-in:", error);
 			toast.error("Failed to sign in with Google");
@@ -53,20 +54,21 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
 	};
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
-		setIsLoading(true);
+		try {
+			setIsLoading(true);
 
-		const { error } = await authClient.signIn.magicLink({
-			email: values.email,
-			callbackURL: "/dashboard",
-			newUserCallbackURL: "/dashboard",
-		});
-
-		if (error) {
-			toast.error(error.message);
+			await authClient.signIn.magicLink({
+				email: values.email,
+				callbackURL: "/dashboard",
+				newUserCallbackURL: "/dashboard",
+			});
+			toast.success("Magic link sent! Check your email.");
+		} catch (error) {
+			toast.error("Failed to send magic link");
 			console.error("Magic link sign-in error:", error);
+		} finally {
+			setIsLoading(false);
 		}
-
-		setIsLoading(false);
 	}
 
 	const isLogin = pathname === "/login";
