@@ -61,7 +61,7 @@ export async function withAuth(
 
 		const userContext = {
 			...session.user,
-			organizationId: activeMembership.organizationId,
+			organizationId: activeOrgId || activeMembership.organizationId,
 		};
 
 		return await handler(request, userContext, session.session);
