@@ -9,7 +9,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -21,12 +21,13 @@ import {
 	FormLabel,
 	FormMessage,
 } from "../ui/form";
+import { Skeleton } from "../ui/skeleton";
 
 const formSchema = z.object({
 	email: z.email("Please enter a valid email address"),
 });
 
-export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
+const AuthContent = ({ className, ...props }: React.ComponentProps<"div">) => {
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
 	const router = useRouter();
@@ -192,4 +193,63 @@ export function AuthForm({ className, ...props }: React.ComponentProps<"div">) {
 			</div>
 		</div>
 	);
-}
+};
+
+const AuthLoading = ({ className, ...props }: React.ComponentProps<"div">) => {
+	return (
+		<div className={cn("flex flex-col gap-6", className)} {...props}>
+			<div className="flex flex-col gap-6">
+				{/* Header Section */}
+				<div className="flex flex-col items-center gap-2">
+					<div className="flex flex-col items-center gap-2 font-medium">
+						<div className="flex size-8 items-center justify-center rounded-md">
+							<GalleryVerticalEnd className="size-6" />
+						</div>
+					</div>
+					<Skeleton className="h-7 w-48" /> {/* Title skeleton */}
+					<Skeleton className="h-4 w-56" /> {/* Subtitle skeleton */}
+				</div>
+
+				{/* Form Fields Section */}
+				<div className="flex flex-col gap-6">
+					{/* Email Field */}
+					<div className="space-y-2">
+						<Skeleton className="h-4 w-12" /> {/* Label skeleton */}
+						<Skeleton className="h-10 w-full" />{" "}
+						{/* Input skeleton */}
+					</div>
+
+					{/* Submit Button */}
+					<Skeleton className="h-10 w-full" />
+				</div>
+
+				{/* Divider */}
+				<div className="after:border-border relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t">
+					<span className="bg-background text-muted-foreground relative z-10 px-2">
+						Or
+					</span>
+				</div>
+
+				{/* Google Button */}
+				<Skeleton className="h-10 w-full" />
+			</div>
+
+			{/* Footer Text */}
+			<div className="text-center">
+				<Skeleton className="mx-auto h-4 w-64" />
+				<Skeleton className="mx-auto mt-1 h-4 w-48" />
+			</div>
+		</div>
+	);
+};
+
+export const AuthForm = ({
+	className,
+	...props
+}: React.ComponentProps<"div">) => {
+	return (
+		<Suspense fallback={<AuthLoading className={className} {...props} />}>
+			<AuthContent className={className} {...props} />
+		</Suspense>
+	);
+};
